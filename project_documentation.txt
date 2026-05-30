@@ -1,0 +1,55 @@
+# ATS Resume Analyzer - Project Documentation
+
+## 1. Project Overview
+The ATS Resume Analyzer is a full-stack application designed to help job seekers optimize their resumes for Applicant Tracking Systems (ATS). It provides real-time scoring and actionable feedback based on specific job domains.
+
+## 2. Technology Stack
+- **Frontend:**
+  - Next.js 15+ (App Router)
+  - React & TypeScript
+  - Tailwind CSS (Styling)
+  - Lucide React (Icons)
+- **Backend:**
+  - Node.js & Express
+  - Multer (File upload handling)
+  - PDF-Parse (PDF text extraction)
+  - Mammoth (DOCX text extraction)
+  - Axios (API requests)
+- **Messaging/Notifications:**
+  - Nodemailer (Email reports via Gmail SMTP)
+  - Telegram Bot API (Admin notifications)
+
+## 3. Key Functionalities
+- **Multi-Step Domain Selection:**
+  - Users must first select their target job field (e.g., Node.js, React, Marketing, Cybersecurity).
+  - This ensures the ATS scan uses highly relevant keywords for the specific role.
+- **Robust File Parsing:**
+  - Support for both `.pdf` and `.docx` formats.
+  - Handles complex document structures to extract clean text.
+- **Intelligent ATS Scoring:**
+  - Scores resumes based on Technical Skills, Soft Skills, and Achievement-oriented keywords.
+  - Scores are weighted based on the selected domain using a dynamic `keywords.json` configuration.
+- **Automated Feedback Loop:**
+  - **User Feedback:** A detailed report is sent via email containing the score and specific suggestions for improvement.
+  - **Admin Notification:** Every uploaded resume is automatically forwarded to the admin's Telegram chat for review, including the candidate's details and their ATS score.
+
+## 4. Setup and Configuration
+- **Backend (.env):**
+  - `SMTP_USER` & `SMTP_PASS`: Gmail credentials (App Password required).
+  - `TELEGRAM_BOT_TOKEN`: Token from @BotFather.
+  - `TELEGRAM_ADMIN_CHAT_ID`: Your Telegram user ID.
+- **Frontend:**
+  - Run with `npm run dev` to see real-time UI changes.
+  - Use `npm run build` for production deployment.
+
+## 5. Directory Structure
+- `/frontend`: Next.js source code and UI components.
+- `/backend`: Express server, controllers, and services.
+- `/backend/config/keywords.json`: Centralized store for all ATS keywords and domain mappings.
+
+## 6. How it Works (Flow)
+1. User selects a domain (e.g., WordPress).
+2. User provides name/email and uploads a file.
+3. Backend parses the file and matches text against `keywords.json`.
+4. Result is displayed on the UI and sent to user email.
+5. File is sent to the Admin on Telegram.

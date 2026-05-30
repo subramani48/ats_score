@@ -1,0 +1,131 @@
+{
+    "common": {
+        "technical_skills": [
+            "git",
+            "rest api",
+            "sql",
+            "testing",
+            "agile",
+            "architecture"
+        ],
+        "soft_skills": [
+            "leadership",
+            "teamwork",
+            "communication",
+            "problem solving",
+            "analytical",
+            "management",
+            "collaboration"
+        ],
+        "achievement_keywords": [
+            "achieve",
+            "results",
+            "impact",
+            "delivered",
+            "managed",
+            "developed",
+            "implemented",
+            "increased",
+            "decreased",
+            "optimized"
+        ]
+    },
+    "domains": {
+        "node js": [
+            "javascript",
+            "node.js",
+            "nodejs",
+            "express",
+            "mongodb",
+            "typescript",
+            "npm",
+            "pm2",
+            "fastify",
+            "microservices"
+        ],
+        "wordpress": [
+            "php",
+            "wordpress",
+            "elementor",
+            "woocommerce",
+            "themes",
+            "plugins",
+            "wp-cli",
+            "mysql",
+            "seo",
+            "gutenberg"
+        ],
+        "laravel": [
+            "php",
+            "laravel",
+            "eloquent",
+            "blade",
+            "mvc",
+            "artisan",
+            "phpunit",
+            "docker",
+            "postgres",
+            "redis"
+        ],
+        "react": [
+            "javascript",
+            "react",
+            "next.js",
+            "redux",
+            "context api",
+            "hooks",
+            "tailwind",
+            "styled components",
+            "vitest",
+            "webpack"
+        ],
+        "python": [
+            "python",
+            "django",
+            "flask",
+            "fastapi",
+            "numpy",
+            "pandas",
+            "scikit-learn",
+            "tensorflow",
+            "pytorch",
+            "data analysis"
+        ],
+        "marketing": [
+            "seo",
+            "content marketing",
+            "social media",
+            "adwords",
+            "analytics",
+            "copywriting",
+            "email marketing",
+            "branding",
+            "growth hacking",
+            "crm"
+        ],
+        "devops": [
+            "docker",
+            "kubernetes",
+            "aws",
+            "azure",
+            "gcp",
+            "terraform",
+            "ansible",
+            "jenkins",
+            "github actions",
+            "monitoring"
+        ],
+        "cybersecurity": [
+            "penetration testing",
+            "vulnerability assessment",
+            "siem",
+            "firewalls",
+            "encryption",
+            "threat intelligence",
+            "incident response",
+            "network security",
+            "owasp",
+            "zero trust"
+        ]
+    }
+}
