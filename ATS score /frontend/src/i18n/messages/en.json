@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "coverLetter": "Cover Letter",
+    "interview": "Interview Prep",
+    "batch": "Batch Analyze",
+    "companyAts": "Company ATS",
+    "versions": "Resume Versions",
+    "apiKeys": "API Keys",
+    "admin": "Admin",
+    "newAnalysis": "New Analysis",
+    "signOut": "Sign Out"
+  },
+  "dashboard": {
+    "title": "Overview",
+    "subtitle": "Track your ATS score progress and resume performance.",
+    "totalAnalyses": "Total Analyses",
+    "avgScore": "Avg Score",
+    "improvement": "Improvement",
+    "bestScore": "Best Score",
+    "quickActions": "Quick Actions",
+    "scoreOverTime": "Score Over Time",
+    "topMissingKeywords": "Top Missing Keywords",
+    "analysisHistory": "Analysis History"
+  },
+  "coverLetter": {
+    "title": "Cover Letter Generator",
+    "subtitle": "AI-powered personalized cover letters in seconds",
+    "resumeText": "Your Resume Text",
+    "jobDescription": "Job Description",
+    "company": "Company name",
+    "role": "Job role/title",
+    "tone": "Tone",
+    "generate": "Generate Cover Letter",
+    "generating": "Generating..."
+  },
+  "interview": {
+    "title": "Interview Prep",
+    "subtitle": "AI-generated interview questions tailored to your resume & job",
+    "generate": "Generate Questions",
+    "generating": "Generating..."
+  },
+  "batch": {
+    "title": "Batch Analysis",
+    "subtitle": "Analyze your resume against multiple jobs at once"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email address",
+    "password": "Password",
+    "name": "Full Name",
+    "continueWithGoogle": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "download": "Download",
+    "export": "Export",
+    "share": "Share",
+    "back": "Back",
+    "fetch": "Fetch",
+    "jobUrl": "Job URL",
+    "analyze": "Analyze",
+    "or": "or",
+    "save": "Save"
+  }
+}
