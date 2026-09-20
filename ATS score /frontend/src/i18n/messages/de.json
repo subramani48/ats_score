@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "overview": "Übersicht",
+    "coverLetter": "Anschreiben",
+    "interview": "Interview-Vorbereitung",
+    "batch": "Stapelanalyse",
+    "companyAts": "Unternehmens-ATS",
+    "versions": "Lebenslauf-Versionen",
+    "apiKeys": "API-Schlüssel",
+    "admin": "Admin",
+    "newAnalysis": "Neue Analyse",
+    "signOut": "Abmelden"
+  },
+  "dashboard": {
+    "title": "Übersicht",
+    "subtitle": "Verfolgen Sie Ihren ATS-Score-Fortschritt und die Leistung Ihres Lebenslaufs.",
+    "totalAnalyses": "Analysen gesamt",
+    "avgScore": "Durchschnittsscore",
+    "improvement": "Verbesserung",
+    "bestScore": "Bester Score",
+    "quickActions": "Schnellaktionen",
+    "scoreOverTime": "Score im Zeitverlauf",
+    "topMissingKeywords": "Fehlende Schlüsselwörter",
+    "analysisHistory": "Analyseverlauf"
+  },
+  "coverLetter": {
+    "title": "Anschreiben-Generator",
+    "subtitle": "KI-gestützte personalisierte Anschreiben in Sekunden",
+    "resumeText": "Ihr Lebenslauf",
+    "jobDescription": "Stellenbeschreibung",
+    "company": "Unternehmensname",
+    "role": "Stelle / Jobtitel",
+    "tone": "Ton",
+    "generate": "Anschreiben erstellen",
+    "generating": "Wird erstellt..."
+  },
+  "interview": {
+    "title": "Interview-Vorbereitung",
+    "subtitle": "KI-generierte Interviewfragen, abgestimmt auf Ihren Lebenslauf und die Stelle",
+    "generate": "Fragen generieren",
+    "generating": "Wird generiert..."
+  },
+  "batch": {
+    "title": "Stapelanalyse",
+    "subtitle": "Analysieren Sie Ihren Lebenslauf gleichzeitig gegen mehrere Stellenangebote"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signUp": "Registrieren",
+    "email": "E-Mail-Adresse",
+    "password": "Passwort",
+    "name": "Vollständiger Name",
+    "continueWithGoogle": "Mit Google fortfahren",
+    "noAccount": "Noch kein Konto?",
+    "hasAccount": "Bereits ein Konto?"
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Etwas ist schief gelaufen",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "download": "Herunterladen",
+    "export": "Exportieren",
+    "share": "Teilen",
+    "back": "Zurück",
+    "fetch": "Abrufen",
+    "jobUrl": "Stellen-URL",
+    "analyze": "Analysieren",
+    "or": "oder",
+    "save": "Speichern"
+  }
+}

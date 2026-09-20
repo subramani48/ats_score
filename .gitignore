@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Files git must NEVER upload. This file lives at the top of the repository and
+# applies to the backend and the frontend. (frontend/ also has its own .gitignore.)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Secrets: real settings files hold passwords and API keys ─────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ── Installed packages and build output (huge, and rebuilt by npm) ──────────
+node_modules/
+dist/
+build/
+out/
+.next/
+coverage/
+*.tsbuildinfo
+
+# ── Logs, temporary and generated files ──────────────────────────────────────
+*.log
+npm-debug.log*
+.turbo/
+.vercel/
+
+# ── Local uploads and data ───────────────────────────────────────────────────
+uploads/
+
+# ── Operating system and editor files ────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp

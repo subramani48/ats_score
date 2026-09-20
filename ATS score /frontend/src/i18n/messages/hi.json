@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "overview": "अवलोकन",
+    "coverLetter": "कवर लेटर",
+    "interview": "इंटरव्यू तैयारी",
+    "batch": "बैच विश्लेषण",
+    "companyAts": "कंपनी ATS",
+    "versions": "रेज़ुमे संस्करण",
+    "apiKeys": "API कुंजियाँ",
+    "admin": "व्यवस्थापक",
+    "newAnalysis": "नया विश्लेषण",
+    "signOut": "साइन आउट"
+  },
+  "dashboard": {
+    "title": "अवलोकन",
+    "subtitle": "अपनी ATS स्कोर प्रगति और रेज़ुमे प्रदर्शन ट्रैक करें।",
+    "totalAnalyses": "कुल विश्लेषण",
+    "avgScore": "औसत स्कोर",
+    "improvement": "सुधार",
+    "bestScore": "सर्वश्रेष्ठ स्कोर",
+    "quickActions": "त्वरित क्रियाएँ",
+    "scoreOverTime": "समय के साथ स्कोर",
+    "topMissingKeywords": "शीर्ष गायब कीवर्ड",
+    "analysisHistory": "विश्लेषण इतिहास"
+  },
+  "coverLetter": {
+    "title": "कवर लेटर जनरेटर",
+    "subtitle": "AI-संचालित व्यक्तिगत कवर लेटर",
+    "resumeText": "आपका रेज़ुमे टेक्स्ट",
+    "jobDescription": "नौकरी विवरण",
+    "company": "कंपनी का नाम",
+    "role": "नौकरी की भूमिका",
+    "tone": "स्वर",
+    "generate": "कवर लेटर बनाएं",
+    "generating": "बना रहे हैं..."
+  },
+  "interview": {
+    "title": "इंटरव्यू तैयारी",
+    "subtitle": "AI-जनित इंटरव्यू प्रश्न",
+    "generate": "प्रश्न बनाएं",
+    "generating": "बना रहे हैं..."
+  },
+  "batch": {
+    "title": "बैच विश्लेषण",
+    "subtitle": "एक साथ कई नौकरियों के लिए अपना रेज़ुमे विश्लेषण करें"
+  },
+  "auth": {
+    "signIn": "साइन इन",
+    "signUp": "साइन अप",
+    "email": "ईमेल पता",
+    "password": "पासवर्ड",
+    "name": "पूरा नाम",
+    "continueWithGoogle": "Google से जारी रखें",
+    "noAccount": "खाता नहीं है?",
+    "hasAccount": "पहले से खाता है?"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "कुछ गलत हो गया",
+    "copy": "कॉपी",
+    "copied": "कॉपी हो गया!",
+    "download": "डाउनलोड",
+    "export": "निर्यात",
+    "share": "साझा करें",
+    "back": "वापस",
+    "fetch": "प्राप्त करें",
+    "jobUrl": "नौकरी URL",
+    "analyze": "विश्लेषण",
+    "or": "या",
+    "save": "सहेजें"
+  }
+}

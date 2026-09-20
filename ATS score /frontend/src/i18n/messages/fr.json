@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "overview": "Vue d'ensemble",
+    "coverLetter": "Lettre de motivation",
+    "interview": "Préparation entretien",
+    "batch": "Analyse en lot",
+    "companyAts": "ATS entreprise",
+    "versions": "Versions du CV",
+    "apiKeys": "Clés API",
+    "admin": "Admin",
+    "newAnalysis": "Nouvelle analyse",
+    "signOut": "Se déconnecter"
+  },
+  "dashboard": {
+    "title": "Vue d'ensemble",
+    "subtitle": "Suivez vos progrès de score ATS et la performance de votre CV.",
+    "totalAnalyses": "Analyses totales",
+    "avgScore": "Score moyen",
+    "improvement": "Amélioration",
+    "bestScore": "Meilleur score",
+    "quickActions": "Actions rapides",
+    "scoreOverTime": "Score dans le temps",
+    "topMissingKeywords": "Mots-clés manquants",
+    "analysisHistory": "Historique des analyses"
+  },
+  "coverLetter": {
+    "title": "Générateur de lettre de motivation",
+    "subtitle": "Lettres de motivation personnalisées par IA en quelques secondes",
+    "resumeText": "Votre CV",
+    "jobDescription": "Description du poste",
+    "company": "Nom de l'entreprise",
+    "role": "Poste / titre du poste",
+    "tone": "Ton",
+    "generate": "Générer la lettre",
+    "generating": "Génération en cours..."
+  },
+  "interview": {
+    "title": "Préparation à l'entretien",
+    "subtitle": "Questions d'entretien générées par IA adaptées à votre CV et au poste",
+    "generate": "Générer les questions",
+    "generating": "Génération en cours..."
+  },
+  "batch": {
+    "title": "Analyse en lot",
+    "subtitle": "Analysez votre CV contre plusieurs offres d'emploi en même temps"
+  },
+  "auth": {
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "name": "Nom complet",
+    "continueWithGoogle": "Continuer avec Google",
+    "noAccount": "Pas encore de compte ?",
+    "hasAccount": "Vous avez déjà un compte ?"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "download": "Télécharger",
+    "export": "Exporter",
+    "share": "Partager",
+    "back": "Retour",
+    "fetch": "Récupérer",
+    "jobUrl": "URL de l'offre",
+    "analyze": "Analyser",
+    "or": "ou",
+    "save": "Enregistrer"
+  }
+}
