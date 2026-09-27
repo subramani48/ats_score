@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import { FileText, TrendingUp, TrendingDown, Minus, ChevronRight } from 'lucide-react';
 import type { Analysis } from '@/lib/api';
+import { useLocale, useT } from '@/i18n';
+import { DATE_LOCALES } from '@/i18n/config';
 
 interface Props {
   analyses: Analysis[];
@@ -16,11 +18,13 @@ const scoreBadge = (score: number) => {
 };
 
 export default function AnalysisHistory({ analyses, onSelect }: Props) {
+  const t = useT();
+  const { locale } = useLocale();
   if (!analyses.length) {
     return (
       <div className="text-center py-12 text-gray-400">
         <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-        <p className="text-sm">No analyses yet — upload your first resume to get started.</p>
+        <p className="text-sm">{t('overview.historyEmpty')}</p>
       </div>
     );
   }
@@ -40,9 +44,9 @@ export default function AnalysisHistory({ analyses, onSelect }: Props) {
                 <FileText className="w-5 h-5 text-indigo-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate">{a.resume?.originalName ?? 'Resume'}</p>
+                <p className="font-semibold text-sm truncate">{a.resume?.originalName ?? t('common.resume')}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  {a.domain} · {new Date(a.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {a.domain} · {new Date(a.createdAt).toLocaleDateString(DATE_LOCALES[locale], { month: 'short', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
@@ -53,7 +57,7 @@ export default function AnalysisHistory({ analyses, onSelect }: Props) {
                 )}
                 {a.mode === 'rewrite' && (
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-500/20">
-                    Rewrite
+                    {t('overview.rewrite')}
                   </span>
                 )}
                 {delta != null && delta !== 0 && (

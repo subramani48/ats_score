@@ -9,10 +9,24 @@ import {
   Send, Bot, User as UserIcon, Network,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-const SkillGraph = dynamic(() => import('@/components/dashboard/SkillGraph'), { ssr: false, loading: () => <div className="h-96 flex items-center justify-center text-gray-400 text-sm">Loading graph...</div> });
+const SkillGraph = dynamic(() => import('@/components/dashboard/SkillGraph'), { ssr: false, loading: () => <GraphLoading /> });
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api, BASE_URL } from '@/lib/api';
 import type { Analysis, KeywordGapResult } from '@/lib/api';
+import { useLocale, useT, type MessageKey } from '@/i18n';
+import { DATE_LOCALES } from '@/i18n/config';
+
+const BREAKDOWN_LABELS: Record<string, MessageKey> = {
+  keywordScore: 'landing.keywords',
+  achievementScore: 'upload.achievements',
+  formattingScore: 'landing.formatting',
+  readabilityScore: 'upload.readability',
+};
+
+function GraphLoading() {
+  const t = useT();
+  return <div className="h-96 flex items-center justify-center text-gray-400 text-sm">{t('analysis.loadingGraph')}</div>;
+}
 
 
 interface ChatMsg { role: 'user' | 'ai'; text: string }
@@ -29,6 +43,8 @@ export default function AnalysisDetailPage() {
   const [chatLoading, setChatLoading] = useState(false);
   const [benchmark, setBenchmark] = useState<{ percentile: number | null; message: string } | null>(null);
   const [copied, setCopied]     = useState(false);
+  const t = useT();
+  const { locale } = useLocale();
 
   useEffect(() => {
     if (!token || !id) return;
@@ -67,11 +83,11 @@ export default function AnalysisDetailPage() {
         setChat(prev => prev.map((m, i) => i === prev.length - 1 ? { ...m, text: aiText } : m));
       }
     } catch {
-      setChat(prev => [...prev, { role: 'ai', text: 'Sorry, I could not process that. Please try again.' }]);
+      setChat(prev => [...prev, { role: 'ai', text: t('analysis.chatFailed') }]);
     } finally {
       setChatLoading(false);
     }
-  }, [chatInput, chatLoading, id, token]);
+  }, [chatInput, chatLoading, id, token, t]);
 
   const exportTxt = async () => {
     if (!analysis) return;
@@ -116,10 +132,10 @@ export default function AnalysisDetailPage() {
   const scoreBg   = score >= 70 ? 'from-green-500 to-emerald-600' : score >= 50 ? 'from-amber-500 to-orange-500' : 'from-red-500 to-rose-600';
 
   const TABS = [
-    { key: 'overview',  label: 'Overview',      Icon: BarChart2 },
-    { key: 'keywords',  label: 'Keyword Gap',   Icon: Target },
-    { key: 'graph',     label: 'Skill Graph',   Icon: Network },
-    { key: 'chat',      label: 'AI Coach',      Icon: MessageSquare },
+    { key: 'overview',  label: t('overview.title'),      Icon: BarChart2 },
+    { key: 'keywords',  label: t('analysis.tabGap'),     Icon: Target },
+    { key: 'graph',     label: t('analysis.tabGraph'),   Icon: Network },
+    { key: 'chat',      label: t('analysis.tabCoach'),   Icon: MessageSquare },
   ] as const;
 
   return (
@@ -127,26 +143,26 @@ export default function AnalysisDetailPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()}
+          <button onClick={() => router.back()} aria-label={t('common.back')}
             className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </button>
           <div>
             <h1 className="text-xl font-bold">{analysis.resume.originalName}</h1>
             <p className="text-xs text-gray-400 mt-0.5">
-              {analysis.domain} · {analysis.mode === 'rewrite' ? 'AI Rewrite' : 'ATS Analysis'} ·{' '}
-              {new Date(analysis.createdAt).toLocaleDateString()}
+              {analysis.domain} · {analysis.mode === 'rewrite' ? t('upload.modeRewrite') : t('analysis.atsAnalysis')} ·{' '}
+              {new Date(analysis.createdAt).toLocaleDateString(DATE_LOCALES[locale])}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={copyLink}
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-            <Share2 className="w-3.5 h-3.5" />{copied ? 'Copied!' : 'Share'}
+            <Share2 className="w-3.5 h-3.5" />{copied ? t('common.copied') : t('common.share')}
           </button>
           <button onClick={exportTxt}
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-            <Download className="w-3.5 h-3.5" />Export
+            <Download className="w-3.5 h-3.5" />{t('common.export')}
           </button>
         </div>
       </div>
@@ -157,10 +173,10 @@ export default function AnalysisDetailPage() {
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
           className={`bg-gradient-to-br ${scoreBg} rounded-2xl p-6 text-white text-center`}>
           <p className="text-5xl font-black">{score}</p>
-          <p className="text-white/80 text-sm mt-1">ATS Score / 100</p>
+          <p className="text-white/80 text-sm mt-1">{t('analysis.scoreOutOf')}</p>
           {benchmark?.percentile != null && (
             <p className="mt-3 text-xs bg-white/20 rounded-full px-3 py-1 inline-block">
-              Top {100 - benchmark.percentile}% in {analysis.domain}
+              {t('analysis.topPercent', { n: 100 - benchmark.percentile, domain: analysis.domain })}
             </p>
           )}
         </motion.div>
@@ -168,10 +184,10 @@ export default function AnalysisDetailPage() {
         {/* Breakdown */}
         {analysis.breakdown && (
           <div className="sm:col-span-2 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Score Breakdown</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">{t('upload.breakdown')}</h3>
             <div className="space-y-3">
               {Object.entries(analysis.breakdown).map(([k, v]) => {
-                const label = k.replace(/([A-Z])/g, ' $1').replace('Score', '').trim();
+                const label = BREAKDOWN_LABELS[k] ? t(BREAKDOWN_LABELS[k]) : k.replace(/([A-Z])/g, ' $1').replace('Score', '').trim();
                 const pct   = Number(v);
                 return (
                   <div key={k}>
@@ -211,7 +227,7 @@ export default function AnalysisDetailPage() {
           {analysis.warnings.length > 0 && (
             <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-5">
               <h3 className="font-bold text-sm text-amber-700 dark:text-amber-400 flex items-center gap-2 mb-3">
-                <AlertTriangle className="w-4 h-4" />Warnings ({analysis.warnings.length})
+                <AlertTriangle className="w-4 h-4" />{t('analysis.warnings', { n: analysis.warnings.length })}
               </h3>
               <ul className="space-y-2">
                 {analysis.warnings.map((w, i) => (
@@ -227,7 +243,7 @@ export default function AnalysisDetailPage() {
           {analysis.suggestions.length > 0 && (
             <div className="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-2xl p-5">
               <h3 className="font-bold text-sm text-blue-700 dark:text-blue-400 flex items-center gap-2 mb-3">
-                <Zap className="w-4 h-4" />Suggestions ({analysis.suggestions.length})
+                <Zap className="w-4 h-4" />{t('analysis.suggestions', { n: analysis.suggestions.length })}
               </h3>
               <ul className="space-y-2">
                 {analysis.suggestions.map((s, i) => (
@@ -242,7 +258,7 @@ export default function AnalysisDetailPage() {
           {/* Matched Keywords */}
           <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-2xl p-5">
             <h3 className="font-bold text-sm text-green-700 dark:text-green-400 flex items-center gap-2 mb-3">
-              <CheckCircle2 className="w-4 h-4" />Matched Keywords ({analysis.keywordsMatched.length})
+              <CheckCircle2 className="w-4 h-4" />{t('upload.matched', { n: analysis.keywordsMatched.length })}
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {analysis.keywordsMatched.map(k => (
@@ -254,7 +270,7 @@ export default function AnalysisDetailPage() {
           {/* Missing Keywords */}
           <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-5">
             <h3 className="font-bold text-sm text-red-700 dark:text-red-400 flex items-center gap-2 mb-3">
-              <XCircle className="w-4 h-4" />Missing Keywords ({analysis.keywordsMissed.length})
+              <XCircle className="w-4 h-4" />{t('upload.missing', { n: analysis.keywordsMissed.length })}
             </h3>
             <div className="flex flex-wrap gap-1.5">
               {analysis.keywordsMissed.map(k => (
@@ -269,10 +285,10 @@ export default function AnalysisDetailPage() {
           <div className="mt-4 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-sm uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                <Eye className="w-4 h-4" />Rewritten Resume
+                <Eye className="w-4 h-4" />{t('analysis.rewritten')}
               </h3>
               <button onClick={() => { navigator.clipboard.writeText(analysis.rewrittenText!); }}
-                className="text-xs text-indigo-500 hover:text-indigo-600 font-medium">Copy text</button>
+                className="text-xs text-indigo-500 hover:text-indigo-600 font-medium">{t('analysis.copyText')}</button>
             </div>
             <pre className="whitespace-pre-wrap text-sm leading-relaxed font-mono text-gray-700 dark:text-gray-300 max-h-96 overflow-y-auto">
               {analysis.rewrittenText}
@@ -287,7 +303,7 @@ export default function AnalysisDetailPage() {
             {/* Critical Missing */}
             {kgap.criticalMissing?.length > 0 && (
               <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl p-5">
-                <h3 className="font-bold text-sm text-red-700 dark:text-red-400 mb-3">🚨 Critical Missing Keywords</h3>
+                <h3 className="font-bold text-sm text-red-700 dark:text-red-400 mb-3">🚨 {t('analysis.criticalTitle')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {kgap.criticalMissing.map(k => (
                     <span key={k} className="px-3 py-1.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 rounded-full text-xs font-semibold">{k}</span>
@@ -299,7 +315,7 @@ export default function AnalysisDetailPage() {
             {/* Nice-to-have */}
             {kgap.nicetohaveMissing?.length > 0 && (
               <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-5">
-                <h3 className="font-bold text-sm text-amber-700 dark:text-amber-400 mb-3">💡 Nice-to-Have Keywords</h3>
+                <h3 className="font-bold text-sm text-amber-700 dark:text-amber-400 mb-3">💡 {t('analysis.niceTitle')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {kgap.nicetohaveMissing.map(k => (
                     <span key={k} className="px-3 py-1.5 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 rounded-full text-xs font-medium">{k}</span>
@@ -312,7 +328,7 @@ export default function AnalysisDetailPage() {
             {kgap.recommendedAdditions?.length > 0 && (
               <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-5">
                 <h3 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />Recommended Additions
+                  <TrendingUp className="w-4 h-4" />{t('analysis.recommended')}
                 </h3>
                 <div className="space-y-3">
                   {kgap.recommendedAdditions.map((rec, i) => (
@@ -331,7 +347,7 @@ export default function AnalysisDetailPage() {
             {/* Overused Phrases */}
             {kgap.overusedPhrases?.length > 0 && (
               <div className="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 rounded-2xl p-5">
-                <h3 className="font-bold text-sm text-purple-700 dark:text-purple-400 mb-3">⚠️ Overused Phrases to Avoid</h3>
+                <h3 className="font-bold text-sm text-purple-700 dark:text-purple-400 mb-3">⚠️ {t('analysis.overused')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {kgap.overusedPhrases.map(p => (
                     <span key={p} className="px-3 py-1.5 bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium line-through">{p}</span>
@@ -343,8 +359,8 @@ export default function AnalysisDetailPage() {
         ) : (
           <div className="text-center py-12 text-gray-400">
             <Target className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">No keyword gap data available for this analysis.</p>
-            <p className="text-xs mt-1">Upload a resume with a job description to get keyword gap analysis.</p>
+            <p className="text-sm">{t('analysis.noGap')}</p>
+            <p className="text-xs mt-1">{t('analysis.noGapHint')}</p>
           </div>
         )}
       </AnimatedTab>
@@ -352,7 +368,7 @@ export default function AnalysisDetailPage() {
       <AnimatedTab show={tab === 'graph'}>
         <div className="space-y-3">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Visual map of your skill keywords. <span className="text-green-600 dark:text-green-400 font-medium">Green = matched</span>, <span className="text-red-500 font-medium">Red = missing</span>. Drag nodes to explore.
+            {t('analysis.graphIntro')} <span className="text-green-600 dark:text-green-400 font-medium">{t('analysis.graphGreen')}</span>, <span className="text-red-500 font-medium">{t('analysis.graphRed')}</span>. {t('analysis.graphDrag')}
           </p>
           <div className="relative">
             <SkillGraph
@@ -368,8 +384,8 @@ export default function AnalysisDetailPage() {
         <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden">
           <div className="border-b border-gray-100 dark:border-white/10 px-5 py-3 flex items-center gap-2">
             <Bot className="w-4 h-4 text-indigo-500" />
-            <span className="text-sm font-semibold">AI Resume Coach</span>
-            <span className="text-xs text-gray-400 ml-auto">Ask anything about your resume & score</span>
+            <span className="text-sm font-semibold">{t('analysis.coachTitle')}</span>
+            <span className="text-xs text-gray-400 ml-auto">{t('analysis.coachHint')}</span>
           </div>
 
           {/* Messages */}
@@ -377,9 +393,9 @@ export default function AnalysisDetailPage() {
             {chat.length === 0 && (
               <div className="text-center py-8 text-gray-400">
                 <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">Ask me anything about your resume!</p>
+                <p className="text-sm">{t('analysis.coachEmpty')}</p>
                 <div className="mt-3 flex flex-wrap justify-center gap-2">
-                  {['How can I improve my score?', 'Which keywords should I add?', 'Rewrite my summary section'].map(q => (
+                  {[t('analysis.q1'), t('analysis.q2'), t('analysis.q3')].map(q => (
                     <button key={q} onClick={() => setChatInput(q)}
                       className="text-xs px-3 py-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">
                       {q}
@@ -396,7 +412,7 @@ export default function AnalysisDetailPage() {
                 <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                   msg.role === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300'
                 }`}>
-                  {msg.text || <span className="opacity-50">Thinking...</span>}
+                  {msg.text || <span className="opacity-50">{t('analysis.thinking')}</span>}
                 </div>
               </div>
             ))}
@@ -406,9 +422,9 @@ export default function AnalysisDetailPage() {
           <div className="border-t border-gray-100 dark:border-white/10 p-3 flex gap-2">
             <input value={chatInput} onChange={e => setChatInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendChat()}
-              placeholder="Ask your AI coach..."
+              placeholder={t('analysis.chatPlaceholder')} aria-label={t('analysis.chatPlaceholder')}
               className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all" />
-            <button onClick={sendChat} disabled={chatLoading || !chatInput.trim()}
+            <button onClick={sendChat} disabled={chatLoading || !chatInput.trim()} aria-label={t('common.send')}
               className="p-2.5 bg-indigo-500 text-white rounded-xl hover:bg-indigo-600 disabled:opacity-50 transition-colors">
               <Send className="w-4 h-4" />
             </button>

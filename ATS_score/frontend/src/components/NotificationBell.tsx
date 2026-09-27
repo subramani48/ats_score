@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '@/lib/api';
 import type { AppNotification } from '@/lib/api';
 import { useAnalysisStore } from '@/stores/analysisStore';
+import { useT } from '@/i18n';
 
 export default function NotificationBell({ token: tokenProp }: { token?: string }) {
   const { token: storeToken } = useAnalysisStore();
@@ -12,6 +13,7 @@ export default function NotificationBell({ token: tokenProp }: { token?: string 
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [unread, setUnread] = useState(0);
+  const t = useT();
 
   useEffect(() => {
     if (!token) return;
@@ -43,6 +45,7 @@ export default function NotificationBell({ token: tokenProp }: { token?: string 
     <div className="relative">
       <button
         onClick={handleOpen}
+        aria-label={t('notifications.title')}
         className="relative p-2 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
       >
         <Bell className="w-4 h-4" />
@@ -65,7 +68,7 @@ export default function NotificationBell({ token: tokenProp }: { token?: string 
               className="absolute right-0 top-12 w-80 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden"
             >
               <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-white/10">
-                <span className="font-bold text-sm">Notifications</span>
+                <span className="font-bold text-sm">{t('notifications.title')}</span>
                 <div className="flex items-center gap-2">
                   {notifications.some(n => !n.read) && (
                     <button
@@ -76,10 +79,10 @@ export default function NotificationBell({ token: tokenProp }: { token?: string 
                       }}
                       className="text-xs text-indigo-500 hover:underline flex items-center gap-1"
                     >
-                      <CheckCheck className="w-3 h-3" />Mark all read
+                      <CheckCheck className="w-3 h-3" />{t('notifications.markAllRead')}
                     </button>
                   )}
-                  <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-700 dark:hover:text-white">
+                  <button onClick={() => setOpen(false)} aria-label={t('common.close')} className="text-gray-400 hover:text-gray-700 dark:hover:text-white">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
@@ -89,8 +92,8 @@ export default function NotificationBell({ token: tokenProp }: { token?: string 
                 {notifications.length === 0 ? (
                   <div className="py-10 text-center text-gray-400">
                     <Bell className="w-7 h-7 mx-auto mb-2 opacity-30" />
-                    <p className="text-sm font-medium">No notifications yet</p>
-                    <p className="text-xs mt-1">You&apos;re all caught up!</p>
+                    <p className="text-sm font-medium">{t('notifications.empty')}</p>
+                    <p className="text-xs mt-1">{t('notifications.caughtUp')}</p>
                   </div>
                 ) : (
                   notifications.map(n => (

@@ -7,12 +7,14 @@ import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { CoverLetterHistory } from '@/lib/api';
 import LinkedInImport from '@/components/LinkedInImport';
+import { useLocale, useT, type MessageKey } from '@/i18n';
+import { DATE_LOCALES } from '@/i18n/config';
 
-const TONES = [
-  { value: 'professional', label: '👔 Professional', desc: 'Formal and polished' },
-  { value: 'enthusiastic', label: '🚀 Enthusiastic', desc: 'Energetic and passionate' },
-  { value: 'concise',      label: '⚡ Concise',      desc: 'Brief and direct' },
-] as const;
+const TONES: ReadonlyArray<{ value: 'professional' | 'enthusiastic' | 'concise'; icon: string; label: MessageKey; desc: MessageKey }> = [
+  { value: 'professional', icon: '👔', label: 'coverLetter.toneProfessional', desc: 'coverLetter.toneProfessionalDesc' },
+  { value: 'enthusiastic', icon: '🚀', label: 'coverLetter.toneEnthusiastic', desc: 'coverLetter.toneEnthusiasticDesc' },
+  { value: 'concise',      icon: '⚡', label: 'coverLetter.toneConcise',      desc: 'coverLetter.toneConciseDesc' },
+];
 
 export default function CoverLetterPage() {
   const { token } = useAnalysisStore();
@@ -29,6 +31,8 @@ export default function CoverLetterPage() {
   const [copied, setCopied]           = useState(false);
   const [history, setHistory]         = useState<CoverLetterHistory[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const t = useT();
+  const { locale } = useLocale();
 
   useEffect(() => {
     if (!token) return;
@@ -44,18 +48,18 @@ export default function CoverLetterPage() {
       if (r.company) setCompany(r.company);
       if (r.title)   setRole(r.title);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to fetch job');
+      setError(e instanceof Error ? e.message : t('common.fetchFailed'));
     } finally { setFetchingUrl(false); }
   };
 
   const generate = async () => {
-    if (!resumeText.trim() || !jobDesc.trim()) { setError('Resume text and job description are required.'); return; }
+    if (!resumeText.trim() || !jobDesc.trim()) { setError(t('common.resumeAndJdRequired')); return; }
     setLoading(true); setError(''); setResult('');
     try {
       const r = await api.generateCoverLetter({ resumeText, jobDescription: jobDesc, companyName: company, role, tone }, token ?? undefined);
       setResult(r.data.generatedText);
       api.getCoverLetterHistory(token!).then(h => setHistory(h.data)).catch(() => {});
-    } catch (e) { setError(e instanceof Error ? e.message : 'Generation failed'); }
+    } catch (e) { setError(e instanceof Error ? e.message : t('common.generationFailed')); }
     finally { setLoading(false); }
   };
 
@@ -76,14 +80,14 @@ export default function CoverLetterPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FileText className="w-6 h-6 text-purple-500" />Cover Letter Generator
+            <FileText className="w-6 h-6 text-purple-500" />{t('coverLetter.title')}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">AI-powered personalized cover letters in seconds</p>
+          <p className="text-sm text-gray-400 mt-0.5">{t('coverLetter.subtitle')}</p>
         </div>
         {history.length > 0 && (
           <button onClick={() => setShowHistory(!showHistory)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
-            <Clock className="w-4 h-4" />History ({history.length})
+            <Clock className="w-4 h-4" />{t('common.historyCount', { n: history.length })}
             <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showHistory ? 'rotate-180' : ''}`} />
           </button>
         )}
@@ -95,17 +99,17 @@ export default function CoverLetterPage() {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
             className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden">
             <div className="p-4 border-b border-gray-100 dark:border-white/10">
-              <h3 className="text-sm font-semibold">Recent Cover Letters</h3>
+              <h3 className="text-sm font-semibold">{t('coverLetter.recent')}</h3>
             </div>
             <div className="divide-y divide-gray-100 dark:divide-white/10 max-h-64 overflow-y-auto">
               {history.map(h => (
                 <button key={h.id} onClick={() => setResult(h.generatedText)}
                   className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors flex items-center justify-between group">
                   <div>
-                    <p className="text-sm font-medium">{h.companyName ?? 'Unknown Company'} — {h.role ?? 'Unknown Role'}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{h.tone} · {new Date(h.createdAt).toLocaleDateString()}</p>
+                    <p className="text-sm font-medium">{h.companyName ?? t('common.unknownCompany')} — {h.role ?? t('common.unknownRole')}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{h.tone} · {new Date(h.createdAt).toLocaleDateString(DATE_LOCALES[locale])}</p>
                   </div>
-                  <span className="text-xs text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">View →</span>
+                  <span className="text-xs text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">{t('common.view')} →</span>
                 </button>
               ))}
             </div>
@@ -119,10 +123,10 @@ export default function CoverLetterPage() {
           {/* Resume Text */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">
-              Your Resume Text *
+              {t('common.resumeText')} *
             </label>
             <textarea value={resumeText} onChange={e => setResumeText(e.target.value)}
-              rows={6} placeholder="Paste your resume content here..."
+              rows={6} placeholder={t('common.resumePlaceholder')}
               className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all resize-none" />
             <LinkedInImport token={token} onImport={setResumeText} />
           </div>
@@ -132,22 +136,22 @@ export default function CoverLetterPage() {
             <div className="relative flex-1">
               <Link className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
               <input value={jobUrl} onChange={e => setJobUrl(e.target.value)}
-                placeholder="Or paste job URL to auto-fill..."
+                placeholder={t('common.jobUrlPlaceholder')}
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" />
             </div>
             <button onClick={fetchFromUrl} disabled={fetchingUrl || !jobUrl.trim()}
               className="flex items-center gap-2 px-4 py-2.5 bg-purple-500 text-white rounded-xl text-sm font-semibold hover:bg-purple-600 disabled:opacity-50 transition-colors shrink-0">
-              {fetchingUrl ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Fetch'}
+              {fetchingUrl ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : t('common.fetch')}
             </button>
           </div>
 
           {/* Job Description */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">
-              Job Description *
+              {t('common.jobDescription')} *
             </label>
             <textarea value={jobDesc} onChange={e => setJobDesc(e.target.value)}
-              rows={5} placeholder="Paste job description here..."
+              rows={5} placeholder={t('common.jdPlaceholder')}
               className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all resize-none" />
           </div>
 
@@ -156,30 +160,30 @@ export default function CoverLetterPage() {
             <div className="relative">
               <Building2 className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
               <input value={company} onChange={e => setCompany(e.target.value)}
-                placeholder="Company name"
+                placeholder={t('common.companyName')}
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" />
             </div>
             <div className="relative">
               <UserIcon className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
               <input value={role} onChange={e => setRole(e.target.value)}
-                placeholder="Job role/title"
+                placeholder={t('common.jobRole')}
                 className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all" />
             </div>
           </div>
 
           {/* Tone */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">Tone</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block">{t('coverLetter.tone')}</label>
             <div className="grid grid-cols-3 gap-2">
-              {TONES.map(t => (
-                <button key={t.value} onClick={() => setTone(t.value)}
+              {TONES.map(tn => (
+                <button key={tn.value} onClick={() => setTone(tn.value)}
                   className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all ${
-                    tone === t.value
+                    tone === tn.value
                       ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300'
                       : 'border-gray-200 dark:border-white/10 hover:border-purple-300 dark:hover:border-purple-500/30'
                   }`}>
-                  <span className="text-sm font-medium">{t.label}</span>
-                  <span className="text-xs text-gray-400">{t.desc}</span>
+                  <span className="text-sm font-medium">{tn.icon} {t(tn.label)}</span>
+                  <span className="text-xs text-gray-400">{t(tn.desc)}</span>
                 </button>
               ))}
             </div>
@@ -194,22 +198,22 @@ export default function CoverLetterPage() {
           <motion.button onClick={generate} disabled={loading || !resumeText.trim() || !jobDesc.trim()}
             whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
             className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold text-sm shadow-lg disabled:opacity-50 flex items-center justify-center gap-2">
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Generating...</> : <><Sparkles className="w-4 h-4" />Generate Cover Letter</>}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{t('common.generating')}</> : <><Sparkles className="w-4 h-4" />{t('coverLetter.generate')}</>}
           </motion.button>
         </div>
 
         {/* Right — Result */}
         <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-white/10">
-            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Generated Letter</span>
+            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('coverLetter.generated')}</span>
             {result && (
               <div className="flex items-center gap-2">
                 <button onClick={copyResult} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors">
                   {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied ? 'Copied!' : 'Copy'}
+                  {copied ? t('common.copied') : t('common.copy')}
                 </button>
                 <button onClick={exportTxt} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors">
-                  <Download className="w-3.5 h-3.5" />Download
+                  <Download className="w-3.5 h-3.5" />{t('common.download')}
                 </button>
               </div>
             )}
@@ -218,7 +222,7 @@ export default function CoverLetterPage() {
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400">
                 <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
-                <p className="text-sm">Crafting your personalized cover letter...</p>
+                <p className="text-sm">{t('coverLetter.crafting')}</p>
               </div>
             ) : result ? (
               <motion.pre initial={{ opacity: 0 }} animate={{ opacity: 1 }}
@@ -228,8 +232,8 @@ export default function CoverLetterPage() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400">
                 <FileText className="w-12 h-12 opacity-20" />
-                <p className="text-sm">Your cover letter will appear here</p>
-                <p className="text-xs">Fill in the form and click Generate</p>
+                <p className="text-sm">{t('coverLetter.emptyTitle')}</p>
+                <p className="text-xs">{t('coverLetter.emptyHint')}</p>
               </div>
             )}
           </div>

@@ -15,20 +15,23 @@ import NotificationBell from '@/components/NotificationBell';
 import ThemeToggle from '@/components/ThemeToggle';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import SubscriptionBadge from '@/components/dashboard/SubscriptionBadge';
+import { useT, type MessageKey } from '@/i18n';
 
-const NAV = [
-  { href: '/dashboard',            label: 'Overview',       Icon: BarChart2,     exact: true },
-  { href: '/dashboard/cover-letter', label: 'Cover Letter',  Icon: FileText },
-  { href: '/dashboard/interview',  label: 'Interview Prep', Icon: MessageSquare },
-  { href: '/dashboard/mock-interview', label: 'Mock Interview', Icon: Mic },
-  { href: '/dashboard/star-stories',   label: 'STAR Stories',   Icon: BookOpen },
-  { href: '/dashboard/battle-card',    label: 'Battle Card',    Icon: Target },
-  { href: '/dashboard/applications',   label: 'Applications',   Icon: Briefcase },
-  { href: '/dashboard/batch',      label: 'Batch Analyze',  Icon: Layers },
-  { href: '/dashboard/company-ats',label: 'Company ATS',    Icon: Building2 },
-  { href: '/dashboard/versions',   label: 'Resume Versions',Icon: GitBranch },
-  { href: '/dashboard/api-keys',   label: 'API Keys',       Icon: Key },
+const NAV: Array<{ href: string; label: MessageKey; Icon: typeof BarChart2; exact?: boolean }> = [
+  { href: '/dashboard',                label: 'nav.overview',      Icon: BarChart2,     exact: true },
+  { href: '/dashboard/cover-letter',   label: 'nav.coverLetter',   Icon: FileText },
+  { href: '/dashboard/interview',      label: 'nav.interview',     Icon: MessageSquare },
+  { href: '/dashboard/mock-interview', label: 'nav.mockInterview', Icon: Mic },
+  { href: '/dashboard/star-stories',   label: 'nav.starStories',   Icon: BookOpen },
+  { href: '/dashboard/battle-card',    label: 'nav.battleCard',    Icon: Target },
+  { href: '/dashboard/applications',   label: 'nav.applications',  Icon: Briefcase },
+  { href: '/dashboard/batch',          label: 'nav.batch',         Icon: Layers },
+  { href: '/dashboard/company-ats',    label: 'nav.companyAts',    Icon: Building2 },
+  { href: '/dashboard/versions',       label: 'nav.versions',      Icon: GitBranch },
+  { href: '/dashboard/api-keys',       label: 'nav.apiKeys',       Icon: Key },
 ];
+
+const ADMIN_AND_NAV = [...NAV, { href: '/dashboard/admin', label: 'nav.admin' as MessageKey }];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, token, clearAuth } = useAnalysisStore();
@@ -36,6 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     if (!token) { router.push('/login'); return; }
@@ -64,7 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Nav Items */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         <Link href="/#upload" className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 text-white text-sm font-semibold mb-4 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all">
-          <Plus className="w-4 h-4" />New Analysis
+          <Plus className="w-4 h-4" />{t('nav.newAnalysis')}
         </Link>
 
         {NAV.map(({ href, label, Icon, exact }) => (
@@ -77,7 +81,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }`}>
             <div className="flex items-center gap-3">
               <Icon className="w-4 h-4 shrink-0" />
-              {label}
+              {t(label)}
             </div>
             {isActive(href, exact) && <ChevronRight className="w-3.5 h-3.5 opacity-60" />}
           </Link>
@@ -93,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }`}>
             <div className="flex items-center gap-3">
               <Shield className="w-4 h-4 shrink-0" />
-              Admin
+              {t('nav.admin')}
             </div>
             {isActive('/dashboard/admin') && <ChevronRight className="w-3.5 h-3.5 opacity-60" />}
           </Link>
@@ -108,7 +112,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-medium truncate">{user?.name ?? 'User'}</p>
+              <p className="text-sm font-medium truncate">{user?.name ?? t('nav.user')}</p>
               <SubscriptionBadge />
             </div>
             <p className="text-xs text-gray-400 truncate">{user?.email}</p>
@@ -116,7 +120,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <button onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all">
-          <LogOut className="w-4 h-4" />Sign Out
+          <LogOut className="w-4 h-4" />{t('nav.signOut')}
         </button>
       </div>
     </div>
@@ -150,20 +154,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Top Bar */}
         <header className="sticky top-0 z-20 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-white/10 px-4 lg:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(true)}
+            <button onClick={() => setSidebarOpen(true)} aria-label={t('nav.openMenu')}
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
               <Menu className="w-5 h-5" />
             </button>
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1 text-sm text-gray-500">
-              <Link href="/dashboard" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+              <Link href="/dashboard" aria-label={t('nav.overview')} className="hover:text-gray-900 dark:hover:text-white transition-colors">
                 <Home className="w-4 h-4" />
               </Link>
               {pathname !== '/dashboard' && (
                 <>
                   <ChevronRight className="w-3 h-3" />
-                  <span className="text-gray-900 dark:text-white font-medium capitalize">
-                    {pathname.split('/').pop()?.replace(/-/g, ' ')}
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {t(ADMIN_AND_NAV.find(n => n.href !== '/dashboard' && pathname.startsWith(n.href))?.label ?? 'nav.analysis')}
                   </span>
                 </>
               )}

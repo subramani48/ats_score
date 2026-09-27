@@ -8,6 +8,8 @@ import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { AdminStats } from '@/lib/api';
 import AdminUsers from '@/components/dashboard/AdminUsers';
+import { useLocale, useT } from '@/i18n';
+import { DATE_LOCALES } from '@/i18n/config';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function AdminPage() {
@@ -16,6 +18,8 @@ export default function AdminPage() {
   const [stats, setStats]   = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState('');
+  const t = useT();
+  const { locale } = useLocale();
 
   useEffect(() => {
     if (!token) { router.push('/login'); return; }
@@ -23,13 +27,13 @@ export default function AdminPage() {
       .then(r => setStats(r.data))
       .catch(e => {
         if (e.message?.includes('403') || e.message?.includes('Forbidden') || e.message?.includes('Unauthorized')) {
-          setError('You do not have admin access.');
+          setError(t('admin.noAccess'));
         } else {
-          setError(e.message ?? 'Failed to load stats');
+          setError(e.message ?? t('common.loadFailed'));
         }
       })
       .finally(() => setLoading(false));
-  }, [token, router]);
+  }, [token, router, t]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -42,7 +46,7 @@ export default function AdminPage() {
       <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mx-auto mb-4">
         <AlertTriangle className="w-8 h-8 text-red-500" />
       </div>
-      <h2 className="text-xl font-bold mb-2">Access Denied</h2>
+      <h2 className="text-xl font-bold mb-2">{t('admin.denied')}</h2>
       <p className="text-gray-400 text-sm">{error}</p>
     </div>
   );
@@ -50,11 +54,11 @@ export default function AdminPage() {
   if (!stats) return null;
 
   const PLATFORM_STATS = [
-    { label: 'Total Users',       value: stats.totalUsers,       Icon: Users,       color: 'from-blue-500 to-indigo-600' },
-    { label: 'Total Analyses',    value: stats.totalAnalyses,    Icon: BarChart2,    color: 'from-indigo-500 to-violet-600' },
-    { label: 'Cover Letters',     value: stats.totalCoverLetters, Icon: FileText,    color: 'from-purple-500 to-pink-500' },
-    { label: 'Interview Sessions', value: stats.totalInterviews,  Icon: MessageSquare, color: 'from-green-500 to-emerald-600' },
-    { label: 'Avg Platform Score', value: `${stats.avgScore}%`,   Icon: Target,      color: 'from-amber-500 to-orange-500' },
+    { label: t('admin.totalUsers'), value: stats.totalUsers,       Icon: Users,       color: 'from-blue-500 to-indigo-600' },
+    { label: t('overview.totalAnalyses'), value: stats.totalAnalyses,    Icon: BarChart2,    color: 'from-indigo-500 to-violet-600' },
+    { label: t('plan.coverLetters'), value: stats.totalCoverLetters, Icon: FileText,    color: 'from-purple-500 to-pink-500' },
+    { label: t('plan.interviews'), value: stats.totalInterviews,  Icon: MessageSquare, color: 'from-green-500 to-emerald-600' },
+    { label: t('admin.avgScore'), value: `${stats.avgScore}%`,   Icon: Target,      color: 'from-amber-500 to-orange-500' },
   ];
 
   const DOMAIN_COLORS = ['#6366f1','#8b5cf6','#ec4899','#06b6d4','#10b981','#f59e0b','#ef4444','#84cc16'];
@@ -66,8 +70,8 @@ export default function AdminPage() {
           <Shield className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <p className="text-sm text-gray-400">Platform-wide analytics and statistics</p>
+          <h1 className="text-2xl font-bold">{t('admin.title')}</h1>
+          <p className="text-sm text-gray-400">{t('admin.subtitle')}</p>
         </div>
       </div>
 
@@ -91,7 +95,7 @@ export default function AdminPage() {
         {stats.analysesPerDay.length > 0 && (
           <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
             <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1 flex items-center gap-2">
-              <Calendar className="w-4 h-4" />Analyses Per Day (Last 30 Days)
+              <Calendar className="w-4 h-4" />{t('admin.perDay')}
             </h2>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={stats.analysesPerDay.slice(-30)}>
@@ -111,7 +115,7 @@ export default function AdminPage() {
         {stats.topDomains.length > 0 && (
           <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
             <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />Top Domains
+              <TrendingUp className="w-4 h-4" />{t('admin.topDomains')}
             </h2>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={stats.topDomains} layout="vertical">
@@ -136,7 +140,7 @@ export default function AdminPage() {
       {/* Recent Analyses */}
       <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-100 dark:border-white/10">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">Recent Analyses (Platform-wide)</h2>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">{t('admin.recent')}</h2>
         </div>
         <div className="divide-y divide-gray-100 dark:divide-white/10">
           {stats.recentAnalyses.map((a, i) => (
@@ -155,7 +159,7 @@ export default function AdminPage() {
                     {a.score}%
                   </span>
                 )}
-                <p className="text-xs text-gray-400 mt-0.5">{new Date(a.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{new Date(a.createdAt).toLocaleDateString(DATE_LOCALES[locale])}</p>
               </div>
             </motion.div>
           ))}

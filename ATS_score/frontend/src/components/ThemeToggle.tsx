@@ -2,15 +2,19 @@
 import { Moon, Sun } from 'lucide-react';
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { motion } from 'framer-motion';
+import { useT } from '@/i18n';
 
 export default function ThemeToggle({ className = '' }: { className?: string }) {
   const { theme, toggleTheme } = useAnalysisStore();
+  const t = useT();
+  const label = theme === 'dark' ? t('common.lightMode') : t('common.darkMode');
 
   return (
     <motion.button
       onClick={toggleTheme}
       whileTap={{ scale: 0.88 }}
-      title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={label}
+      aria-label={label}
       className={`p-2 rounded-xl bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors ${className}`}
     >
       <motion.div

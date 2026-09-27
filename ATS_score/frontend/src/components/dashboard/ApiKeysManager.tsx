@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Key, Plus, Trash2, Copy, Check, Eye, EyeOff, Code2 } from 'lucide-react';
 import { api, BASE_URL } from '@/lib/api';
 import type { ApiKeyEntry } from '@/lib/api';
+import { useLocale, useT } from '@/i18n';
+import { DATE_LOCALES } from '@/i18n/config';
 
 export default function ApiKeysManager({ token: tokenProp }: { token?: string }) {
   const token = tokenProp ?? '';
@@ -13,6 +15,8 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
   const [newKey, setNewKey] = useState('');
   const [showNewKey, setShowNewKey] = useState(false);
   const [copied, setCopied] = useState(false);
+  const t = useT();
+  const { locale } = useLocale();
 
   useEffect(() => {
     api.listApiKeys(token).then(r => setKeys(r.data)).catch(() => {});
@@ -51,10 +55,10 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
       <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-1">
           <Key className="w-4 h-4 text-indigo-500" />
-          <h2 className="font-bold">API Keys</h2>
+          <h2 className="font-bold">{t('nav.apiKeys')}</h2>
         </div>
         <p className="text-sm text-gray-400 mb-5">
-          Use these keys to call the API from your own scripts and apps. A key acts as you, so keep it secret. Keys cannot manage other keys or open the admin area.
+          {t('apiKeys.intro')}
         </p>
 
         {/* Create */}
@@ -63,7 +67,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
             value={newKeyName}
             onChange={e => setNewKeyName(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleCreate()}
-            placeholder="Key label (e.g. my-portfolio-app)"
+            placeholder={t('apiKeys.labelPlaceholder')} aria-label={t('apiKeys.labelPlaceholder')}
             className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-indigo-500 transition-colors"
           />
           <motion.button
@@ -78,7 +82,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
             ) : (
               <Plus className="w-4 h-4" />
             )}
-            Create Key
+            {t('apiKeys.create')}
           </motion.button>
         </div>
 
@@ -92,7 +96,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
               className="mb-5 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl"
             >
               <p className="text-xs font-bold text-green-600 dark:text-green-400 mb-2">
-                ⚠️ Copy this key now — it will never be shown again:
+                ⚠️ {t('apiKeys.copyNow')}
               </p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-xs font-mono bg-white dark:bg-black/20 px-3 py-2 rounded-lg break-all">
@@ -100,6 +104,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
                 </code>
                 <button
                   onClick={() => setShowNewKey(s => !s)}
+                  aria-label={showNewKey ? t('apiKeys.hide') : t('apiKeys.show')}
                   className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
                 >
                   {showNewKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -108,7 +113,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
                   onClick={() => copyKey(newKey)}
                   className="flex items-center gap-1.5 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-bold transition-colors"
                 >
-                  {copied ? <><Check className="w-3 h-3" />Copied!</> : <><Copy className="w-3 h-3" />Copy</>}
+                  {copied ? <><Check className="w-3 h-3" />{t('common.copied')}</> : <><Copy className="w-3 h-3" />{t('common.copy')}</>}
                 </button>
               </div>
             </motion.div>
@@ -119,7 +124,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
         {keys.length === 0 ? (
           <div className="text-center py-10 text-gray-400">
             <Key className="w-8 h-8 mx-auto mb-2 opacity-25" />
-            <p className="text-sm">No API keys yet.</p>
+            <p className="text-sm">{t('apiKeys.empty')}</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -134,15 +139,16 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
                   <p className="text-xs text-gray-400 font-mono truncate">{k.key}</p>
                 </div>
                 <div className="text-right hidden sm:block shrink-0">
-                  <p className="text-xs text-gray-400">{k.usageCount} uses</p>
+                  <p className="text-xs text-gray-400">{t('apiKeys.uses', { n: k.usageCount })}</p>
                   {k.lastUsed && (
                     <p className="text-xs text-gray-300 dark:text-gray-600">
-                      {new Date(k.lastUsed).toLocaleDateString()}
+                      {new Date(k.lastUsed).toLocaleDateString(DATE_LOCALES[locale])}
                     </p>
                   )}
                 </div>
                 <button
                   onClick={() => handleRevoke(k.id)}
+                  aria-label={t('apiKeys.revoke')} title={t('apiKeys.revoke')}
                   className="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -157,7 +163,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
       <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-3">
           <Code2 className="w-4 h-4 text-indigo-500" />
-          <h3 className="font-bold text-sm">API Usage Example</h3>
+          <h3 className="font-bold text-sm">{t('apiKeys.example')}</h3>
         </div>
         <pre className="bg-gray-50 dark:bg-black/30 rounded-xl p-4 text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto">
 {`# Send the key in the X-API-Key header (or as "Authorization: Bearer ats_...")

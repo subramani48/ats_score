@@ -11,6 +11,7 @@ import {
 import { api } from '@/lib/api';
 import { useAnalysisStore } from '@/stores/analysisStore';
 import type { Analysis, KeywordGapResult } from '@/lib/api';
+import { useT, type MessageKey } from '@/i18n';
 
 const DOMAINS = [
   { name: 'Node.js',         icon: Server,      color: 'from-green-500 to-emerald-600' },
@@ -28,6 +29,17 @@ const DOMAINS = [
 ];
 
 type Mode = 'analyze' | 'rewrite';
+
+// The server reports progress as a step name plus an English message; show the step in the chosen language.
+const PROGRESS_STEPS: Record<string, MessageKey> = {
+  parsing: 'upload.stepParsing',
+  saving: 'upload.stepSaving',
+  rewriting: 'upload.stepRewriting',
+  'gap-analysis': 'upload.stepGap',
+  analyzing: 'upload.stepAnalyzing',
+  email: 'upload.stepEmail',
+  done: 'upload.stepDone',
+};
 type Status = 'idle' | 'uploading' | 'processing' | 'success' | 'error';
 
 function safeParseJSON(raw: string): unknown {
@@ -47,11 +59,12 @@ function StepDots({ step }: { step: number }) {
 }
 
 function ModeToggle({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void }) {
+  const t = useT();
   return (
     <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-2xl w-fit mx-auto mb-8">
       {([
-        { id: 'analyze' as Mode, label: 'Analyze Score',   Icon: BarChart2, grad: 'from-indigo-500 to-violet-600' },
-        { id: 'rewrite' as Mode, label: 'AI Rewrite',      Icon: Sparkles,  grad: 'from-violet-500 to-purple-600' },
+        { id: 'analyze' as Mode, label: t('upload.modeAnalyze'), Icon: BarChart2, grad: 'from-indigo-500 to-violet-600' },
+        { id: 'rewrite' as Mode, label: t('upload.modeRewrite'), Icon: Sparkles,  grad: 'from-violet-500 to-purple-600' },
       ] as const).map(({ id, label, Icon, grad }) => (
         <motion.button key={id} type="button" onClick={() => onChange(id)} whileTap={{ scale: 0.97 }}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
@@ -100,8 +113,9 @@ function FloatingTextarea({ label, value, onChange, required, placeholder, rows 
 }
 
 function RadialGauge({ score }: { score: number }) {
+  const t = useT();
   const r = 60, circ = 2 * Math.PI * r;
-  const label = score >= 70 ? 'Great' : score >= 50 ? 'Average' : 'Needs Work';
+  const label = score >= 70 ? t('upload.great') : score >= 50 ? t('upload.average') : t('upload.needsWork');
   return (
     <div className="relative w-36 h-36">
       <svg className="w-36 h-36 -rotate-90" viewBox="0 0 144 144">
@@ -127,12 +141,13 @@ function RadialGauge({ score }: { score: number }) {
 }
 
 function KeywordGapPanel({ gap }: { gap: KeywordGapResult }) {
+  const t = useT();
   return (
     <div className="space-y-4">
       {gap.criticalMissing.length > 0 && (
         <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4">
           <p className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-2">
-            Critical Missing ({gap.criticalMissing.length})
+            {t('gap.criticalMissing', { n: gap.criticalMissing.length })}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {gap.criticalMissing.map(kw => (
@@ -144,7 +159,7 @@ function KeywordGapPanel({ gap }: { gap: KeywordGapResult }) {
       {gap.nicetohaveMissing.length > 0 && (
         <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4">
           <p className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-2">
-            Nice-to-Have Missing ({gap.nicetohaveMissing.length})
+            {t('gap.niceMissing', { n: gap.nicetohaveMissing.length })}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {gap.nicetohaveMissing.slice(0, 12).map(kw => (
@@ -156,7 +171,7 @@ function KeywordGapPanel({ gap }: { gap: KeywordGapResult }) {
       {gap.presentKeywords.length > 0 && (
         <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-4">
           <p className="text-xs font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-2">
-            Present Keywords ({gap.presentKeywords.length})
+            {t('gap.present', { n: gap.presentKeywords.length })}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {gap.presentKeywords.slice(0, 15).map(kw => (
@@ -167,7 +182,7 @@ function KeywordGapPanel({ gap }: { gap: KeywordGapResult }) {
       )}
       {gap.recommendedAdditions.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">How to Add Top Keywords</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">{t('gap.howToAdd')}</p>
           {gap.recommendedAdditions.slice(0, 3).map((rec, i) => (
             <div key={i} className="bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 rounded-xl p-3">
               <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">{rec.keyword} → {rec.where}</p>
@@ -212,6 +227,7 @@ export default function UploadSection() {
   const [errorMsg, setErrorMsg]   = useState('');
   const fileRef                   = useRef<HTMLInputElement>(null);
   const { token } = useAnalysisStore();
+  const t = useT();
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault(); setDragging(false);
@@ -230,7 +246,7 @@ export default function UploadSection() {
     if (mode === 'rewrite' && !jd.trim()) return;
 
     setStatus('uploading');
-    setProgress({ percent: 0, message: 'Uploading resume…' });
+    setProgress({ percent: 0, message: t('upload.uploading') });
 
     const form = new FormData();
     form.append('resume', file);
@@ -270,18 +286,18 @@ export default function UploadSection() {
       es.addEventListener('progress', (e) => {
         try {
           const d = JSON.parse(e.data);
-          setProgress({ percent: d.percent, message: d.message });
+          setProgress({ percent: d.percent, message: PROGRESS_STEPS[d.step] ? t(PROGRESS_STEPS[d.step]) : d.message });
         } catch { /* ignore */ }
       });
 
       es.addEventListener('completed', (e) => {
         try { finish(JSON.parse(e.data) as Analysis); }
-        catch { fail('Failed to parse result'); }
+        catch { fail(t('upload.parseFailed')); }
       });
 
       es.addEventListener('error', (e: Event) => {
         const raw = (e as MessageEvent).data;
-        let msg = 'Processing failed — please try again';
+        let msg = t('upload.processingFailed');
         if (typeof raw === 'string' && raw) {
           // data may be JSON {"message":"..."} or a plain string — never throw
           const parsed = safeParseJSON(raw);
@@ -300,19 +316,19 @@ export default function UploadSection() {
           if (s.state === 'completed' && s.result) {
             finish(s.result as Analysis);
           } else if (s.state === 'failed') {
-            fail((s as unknown as { failedReason?: string }).failedReason ?? 'Processing failed');
+            fail((s as unknown as { failedReason?: string }).failedReason ?? t('upload.processingFailed'));
           } else if (s.progress && typeof s.progress === 'object') {
-            const p = s.progress as { percent?: number; message?: string };
-            if (p.percent != null) setProgress({ percent: p.percent, message: p.message ?? '' });
+            const p = s.progress as { percent?: number; message?: string; step?: string };
+            if (p.percent != null) setProgress({ percent: p.percent, message: p.step && PROGRESS_STEPS[p.step] ? t(PROGRESS_STEPS[p.step]) : p.message ?? '' });
           }
         } catch { /* ignore poll errors */ }
       }, 3000);
 
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Could not reach the server');
+      setErrorMsg(err instanceof Error ? err.message : t('upload.unreachable'));
       setStatus('error');
     }
-  }, [file, name, email, domain, mode, jd, token]);
+  }, [file, name, email, domain, mode, jd, token, t]);
 
   const rewrite = mode === 'rewrite';
   const canStep2 = name && email && (mode === 'analyze' || jd.trim().length > 0);
@@ -334,13 +350,12 @@ export default function UploadSection() {
             <AnimatePresence mode="wait">
               <motion.div key={mode} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.25 }}
                 className={`text-center mb-8 px-4 py-3 rounded-xl text-sm border ${rewrite ? 'bg-violet-500/8 border-violet-500/15 text-violet-600 dark:text-violet-400' : 'bg-indigo-500/6 border-indigo-500/12 text-indigo-600 dark:text-indigo-400'}`}>
-                {rewrite ? 'Paste a Job Description — Gemini AI will rewrite your resume to match it and email you the result.'
-                         : 'Get an instant ATS compatibility score with keyword gap analysis and improvement suggestions.'}
+                {rewrite ? t('upload.rewriteIntro') : t('upload.analyzeIntro')}
               </motion.div>
             </AnimatePresence>
             <div className="text-center mb-8">
-              <h3 className="text-2xl md:text-3xl font-bold mb-2">Choose Your Domain</h3>
-              <p className="text-gray-400 text-sm max-w-sm mx-auto">Select your target role for a tailored analysis.</p>
+              <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('upload.chooseDomain')}</h3>
+              <p className="text-gray-400 text-sm max-w-sm mx-auto">{t('upload.chooseDomainHint')}</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {DOMAINS.map((d, idx) => (
@@ -365,7 +380,7 @@ export default function UploadSection() {
             <StepDots step={2} />
             <div className="flex items-center justify-between mb-6">
               <button onClick={() => setStep(1)} className="flex items-center gap-1.5 text-sm font-medium text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <ChevronLeft className="w-4 h-4" />Back
+                <ChevronLeft className="w-4 h-4" />{t('common.back')}
               </button>
               {currentDomain && (
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-white/50 dark:bg-white/5 rounded-full text-xs font-semibold text-indigo-500 border border-indigo-500/20">
@@ -374,25 +389,25 @@ export default function UploadSection() {
               )}
             </div>
             <div className="text-center mb-8">
-              <h3 className="text-2xl md:text-3xl font-bold mb-2">{rewrite ? 'Details & Job Description' : 'Your Details'}</h3>
-              <p className="text-gray-400 text-sm">{rewrite ? 'We need your info and the JD to rewrite your resume.' : 'Where should we send your results?'}</p>
+              <h3 className="text-2xl md:text-3xl font-bold mb-2">{rewrite ? t('upload.detailsRewrite') : t('upload.details')}</h3>
+              <p className="text-gray-400 text-sm">{rewrite ? t('upload.detailsRewriteHint') : t('upload.detailsHint')}</p>
             </div>
             <form onSubmit={e => { e.preventDefault(); setStep(3); }} className="space-y-4 max-w-lg mx-auto">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FloatingInput label="Full Name"     type="text"  value={name}  onChange={setName}  required placeholder="John Doe" />
-                <FloatingInput label="Email Address" type="email" value={email} onChange={setEmail} required placeholder="john@example.com" />
+                <FloatingInput label={t('auth.name')} type="text"  value={name}  onChange={setName}  required placeholder="John Doe" />
+                <FloatingInput label={t('auth.email')} type="email" value={email} onChange={setEmail} required placeholder="john@example.com" />
               </div>
               <div>
-                <FloatingTextarea label={rewrite ? 'Job Description (required for AI rewrite)' : 'Job Description (optional — enables keyword gap analysis)'}
+                <FloatingTextarea label={rewrite ? t('upload.jdRequired') : t('upload.jdOptional')}
                   value={jd} onChange={setJD} required={rewrite} rows={rewrite ? 7 : 5}
-                  placeholder="Paste the complete job description here…" />
+                  placeholder={t('upload.jdPlaceholder')} />
                 <p className="text-xs text-gray-400 mt-1.5 pl-1">
-                  {rewrite ? 'The more detailed the JD, the better the AI rewrite.' : 'Add a JD to get AI-powered keyword gap analysis alongside your score.'}
+                  {rewrite ? t('upload.jdRewriteHint') : t('upload.jdAnalyzeHint')}
                 </p>
               </div>
               <motion.button type="submit" disabled={!canStep2} whileHover={canStep2 ? { scale: 1.02 } : {}} whileTap={canStep2 ? { scale: 0.98 } : {}}
                 className={`w-full py-4 text-white rounded-xl font-bold text-base shadow-lg transition-all duration-300 disabled:opacity-50 bg-gradient-to-r ${rewrite ? 'from-violet-500 to-purple-600' : 'from-indigo-500 to-violet-600'}`}>
-                Continue to Upload →
+                {t('upload.continue')} →
               </motion.button>
             </form>
           </motion.div>
@@ -404,13 +419,13 @@ export default function UploadSection() {
             <StepDots step={3} />
             <div className="flex items-center justify-between mb-6">
               <button onClick={() => setStep(2)} className="flex items-center gap-1.5 text-sm font-medium text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                <ChevronLeft className="w-4 h-4" />Back
+                <ChevronLeft className="w-4 h-4" />{t('common.back')}
               </button>
               <span className="text-xs font-medium text-gray-400 truncate max-w-[200px]">{name} · {email}</span>
             </div>
             <div className="text-center mb-8">
-              <h3 className="text-2xl md:text-3xl font-bold mb-2">Upload Your Resume</h3>
-              <p className="text-gray-400 text-sm">PDF or DOCX · max 5 MB</p>
+              <h3 className="text-2xl md:text-3xl font-bold mb-2">{t('upload.uploadTitle')}</h3>
+              <p className="text-gray-400 text-sm">{t('upload.fileHint')}</p>
             </div>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div onClick={() => fileRef.current?.click()} onDragOver={e => { e.preventDefault(); setDragging(true); }}
@@ -428,7 +443,7 @@ export default function UploadSection() {
                         <p className="text-sm text-gray-400 mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-green-500 font-semibold">
-                        <CheckCircle className="w-3.5 h-3.5" />File selected — click to change
+                        <CheckCircle className="w-3.5 h-3.5" />{t('upload.fileSelected')}
                       </div>
                     </>
                   ) : (
@@ -437,8 +452,8 @@ export default function UploadSection() {
                         <UploadCloud className="w-8 h-8 text-gray-400" />
                       </div>
                       <div className="text-center">
-                        <p className="font-semibold text-base"><span className="text-indigo-500">Click to upload</span> or drag & drop</p>
-                        <p className="text-sm text-gray-400 mt-1">PDF or DOCX (Max 5 MB)</p>
+                        <p className="font-semibold text-base"><span className="text-indigo-500">{t('upload.clickToUpload')}</span> {t('upload.orDrag')}</p>
+                        <p className="text-sm text-gray-400 mt-1">{t('upload.fileHint')}</p>
                       </div>
                     </>
                   )}
@@ -448,7 +463,7 @@ export default function UploadSection() {
               </div>
               <motion.button type="submit" disabled={!canSubmit} whileHover={canSubmit ? { scale: 1.02 } : {}} whileTap={canSubmit ? { scale: 0.98 } : {}}
                 className={`w-full py-4 text-white rounded-xl font-bold text-base shadow-lg transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 bg-gradient-to-r ${rewrite ? 'from-violet-500 to-purple-600' : 'from-indigo-500 to-violet-600'}`}>
-                {rewrite ? <><Sparkles className="w-4 h-4" />Rewrite & Email Me</> : <><Zap className="w-4 h-4" />Analyse My Resume</>}
+                {rewrite ? <><Sparkles className="w-4 h-4" />{t('upload.submitRewrite')}</> : <><Zap className="w-4 h-4" />{t('landing.ctaAnalyse')}</>}
               </motion.button>
             </form>
           </motion.div>
@@ -473,7 +488,7 @@ export default function UploadSection() {
               {progress ? (
                 <ProgressBar percent={progress.percent} message={progress.message} />
               ) : (
-                <p className="text-gray-400 text-sm">Connecting to server…</p>
+                <p className="text-gray-400 text-sm">{t('upload.connecting')}</p>
               )}
             </div>
           </motion.div>
@@ -484,18 +499,18 @@ export default function UploadSection() {
           <motion.div key="success-analyze" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="text-center">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-500/10 rounded-full text-sm font-semibold text-green-600 dark:text-green-400 mb-3 border border-green-200 dark:border-green-500/20">
-                <CheckCircle className="w-4 h-4" />Analysis Complete
+                <CheckCircle className="w-4 h-4" />{t('upload.complete')}
               </div>
-              <h3 className="text-2xl font-bold">Your ATS Report</h3>
-              <p className="text-gray-400 text-sm mt-1">Report sent to <span className="font-semibold text-gray-700 dark:text-white">{email}</span></p>
+              <h3 className="text-2xl font-bold">{t('upload.reportTitle')}</h3>
+              <p className="text-gray-400 text-sm mt-1">{t('upload.reportSent')} <span className="font-semibold text-gray-700 dark:text-white">{email}</span></p>
             </div>
 
             {/* Tab navigation */}
             <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit mx-auto">
               {([
-                { id: 'score', label: 'Score', Icon: BarChart2 },
-                { id: 'keywords', label: 'Keywords', Icon: Target },
-                ...(result.keywordGap ? [{ id: 'gap', label: 'Gap Analysis', Icon: Lightbulb }] : []),
+                { id: 'score', label: t('upload.tabScore'), Icon: BarChart2 },
+                { id: 'keywords', label: t('landing.keywords'), Icon: Target },
+                ...(result.keywordGap ? [{ id: 'gap', label: t('upload.tabGap'), Icon: Lightbulb }] : []),
               ] as const).map(({ id, label, Icon }) => (
                 <button key={id} onClick={() => setActiveTab(id as typeof activeTab)}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -512,18 +527,18 @@ export default function UploadSection() {
                   <div className="bg-white/50 dark:bg-white/5 rounded-2xl p-6 flex flex-col items-center gap-4 border border-gray-100 dark:border-white/10">
                     <RadialGauge score={result.score} />
                     <div className="text-center">
-                      <p className="font-bold">ATS Compatibility</p>
-                      <p className="text-sm text-gray-400 mt-0.5">for <span className="font-semibold text-gray-700 dark:text-white">{domain}</span></p>
+                      <p className="font-bold">{t('upload.compatibility')}</p>
+                      <p className="text-sm text-gray-400 mt-0.5">{t('upload.forDomain')} <span className="font-semibold text-gray-700 dark:text-white">{domain}</span></p>
                     </div>
                   </div>
                   {result.breakdown && (
                     <div className="bg-white/50 dark:bg-white/5 rounded-2xl p-6 space-y-4 border border-gray-100 dark:border-white/10">
-                      <h4 className="font-bold text-xs uppercase tracking-widest text-gray-400">Score Breakdown</h4>
+                      <h4 className="font-bold text-xs uppercase tracking-widest text-gray-400">{t('upload.breakdown')}</h4>
                       {[
-                        { label: 'Keywords', value: result.breakdown.keywordScore, max: 40, Icon: Target },
-                        { label: 'Achievements', value: result.breakdown.achievementScore, max: 25, Icon: Award },
-                        { label: 'Formatting', value: result.breakdown.formattingScore, max: 20, Icon: FileText },
-                        { label: 'Readability', value: result.breakdown.readabilityScore, max: 15, Icon: Star },
+                        { label: t('landing.keywords'), value: result.breakdown.keywordScore, max: 40, Icon: Target },
+                        { label: t('upload.achievements'), value: result.breakdown.achievementScore, max: 25, Icon: Award },
+                        { label: t('landing.formatting'), value: result.breakdown.formattingScore, max: 20, Icon: FileText },
+                        { label: t('upload.readability'), value: result.breakdown.readabilityScore, max: 15, Icon: Star },
                       ].map(({ label, value, max, Icon }, idx) => (
                         <motion.div key={label} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.2 + idx * 0.1 }} className="flex items-center gap-3">
@@ -547,7 +562,7 @@ export default function UploadSection() {
                 {result.warnings.length > 0 && (
                   <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl p-4 space-y-1">
                     <p className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5" />ATS Warnings
+                      <AlertTriangle className="w-3.5 h-3.5" />{t('upload.warnings')}
                     </p>
                     {result.warnings.map((w, i) => (
                       <p key={i} className="text-sm text-amber-700 dark:text-amber-300 flex items-start gap-2">
@@ -559,7 +574,7 @@ export default function UploadSection() {
                 {result.suggestions.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="font-bold text-xs uppercase tracking-widest text-gray-400 flex items-center gap-2 mb-3">
-                      <Lightbulb className="w-4 h-4 text-amber-500" />Suggestions to Improve
+                      <Lightbulb className="w-4 h-4 text-amber-500" />{t('upload.suggestions')}
                     </h4>
                     {result.suggestions.map((s, i) => (
                       <div key={i} className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 flex items-start gap-3 border border-gray-100 dark:border-white/10">
@@ -579,7 +594,7 @@ export default function UploadSection() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 {result.keywordsMatched.length > 0 && (
                   <div className="bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-2">Matched Keywords ({result.keywordsMatched.length})</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-2">{t('upload.matched', { n: result.keywordsMatched.length })}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {result.keywordsMatched.map(kw => (
                         <span key={kw} className="px-2 py-0.5 bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">{kw}</span>
@@ -589,7 +604,7 @@ export default function UploadSection() {
                 )}
                 {result.keywordsMissed.length > 0 && (
                   <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-2">Missing Keywords ({result.keywordsMissed.length})</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-2">{t('upload.missing', { n: result.keywordsMissed.length })}</p>
                     <div className="flex flex-wrap gap-1.5">
                       {result.keywordsMissed.map(kw => (
                         <span key={kw} className="px-2 py-0.5 bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 rounded-full text-xs font-medium">{kw}</span>
@@ -609,7 +624,7 @@ export default function UploadSection() {
 
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset}
               className="w-full py-4 bg-gray-50 dark:bg-white/5 hover:bg-indigo-500/5 border border-gray-100 dark:border-white/10 hover:border-indigo-500/30 rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2 group">
-              <RotateCcw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />Scan Another Resume
+              <RotateCcw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />{t('upload.scanAnother')}
             </motion.button>
           </motion.div>
         )}
@@ -630,23 +645,23 @@ export default function UploadSection() {
             </motion.div>
             <div>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-violet-50 dark:bg-violet-500/10 rounded-full text-sm font-semibold text-violet-600 dark:text-violet-400 mb-4 border border-violet-200 dark:border-violet-500/20">
-                <Sparkles className="w-4 h-4" />AI Rewrite Complete
+                <Sparkles className="w-4 h-4" />{t('upload.rewriteComplete')}
               </div>
-              <h3 className="text-2xl font-bold mb-2">Resume Rewritten & Sent!</h3>
+              <h3 className="text-2xl font-bold mb-2">{t('upload.rewriteSent')}</h3>
               <p className="text-gray-400 text-sm max-w-sm mx-auto leading-relaxed">
-                Your AI-optimised, ATS-ready resume has been emailed to{' '}
-                <span className="font-semibold text-gray-700 dark:text-white">{email}</span>.
+                {t('upload.rewriteEmailed')}{' '}
+                <span className="font-semibold text-gray-700 dark:text-white">{email}</span>
               </p>
             </div>
             {result.keywordGap && (
               <div className="w-full max-w-sm text-left">
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Keyword Gap Analysis</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">{t('upload.gapTitle')}</p>
                 <KeywordGapPanel gap={result.keywordGap} />
               </div>
             )}
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={reset}
               className="px-8 py-3.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-full font-bold shadow-lg flex items-center gap-2 group">
-              <RotateCcw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />Rewrite Another Resume
+              <RotateCcw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />{t('upload.rewriteAnother')}
             </motion.button>
           </motion.div>
         )}
@@ -659,12 +674,12 @@ export default function UploadSection() {
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
             <div className="text-center">
-              <h3 className="text-xl font-bold mb-2">Something went wrong</h3>
+              <h3 className="text-xl font-bold mb-2">{t('common.error')}</h3>
               <p className="text-gray-400 text-sm max-w-xs mx-auto">{errorMsg}</p>
             </div>
             <button onClick={() => { setStatus('idle'); setErrorMsg(''); setProgress(null); }}
               className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-full font-bold shadow-lg">
-              Try Again
+              {t('common.tryAgain')}
             </button>
           </motion.div>
         )}

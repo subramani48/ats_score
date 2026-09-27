@@ -6,6 +6,7 @@ import ReactFlow, {
   useNodesState, useEdgesState, Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import { useT } from '@/i18n';
 
 interface SkillGraphProps {
   domain: string;
@@ -113,6 +114,7 @@ function buildGraph(domain: string, matched: string[], missing: string[]) {
 }
 
 export default function SkillGraph({ domain, matchedKeywords, missingKeywords }: SkillGraphProps) {
+  const t = useT();
   const { nodes: initNodes, edges: initEdges } = useMemo(
     () => buildGraph(domain, matchedKeywords, missingKeywords),
     [domain, matchedKeywords, missingKeywords],
@@ -153,11 +155,11 @@ export default function SkillGraph({ domain, matchedKeywords, missingKeywords }:
       <div className="absolute bottom-3 left-3 flex items-center gap-4 text-xs pointer-events-none">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-green-400" />
-          <span className="text-gray-600 dark:text-gray-400">Matched ({matchedKeywords.slice(0, 12).length})</span>
+          <span className="text-gray-600 dark:text-gray-400">{t('analysis.graphMatched', { n: matchedKeywords.slice(0, 12).length })}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-red-400" />
-          <span className="text-gray-600 dark:text-gray-400">Missing ({missingKeywords.slice(0, 10).length})</span>
+          <span className="text-gray-600 dark:text-gray-400">{t('analysis.graphMissing', { n: missingKeywords.slice(0, 10).length })}</span>
         </div>
       </div>
     </div>

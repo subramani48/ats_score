@@ -14,12 +14,18 @@ import {
 } from 'lucide-react';
 import UploadSection from '@/components/UploadSection';
 import { useRef } from 'react';
+import { useT } from '@/i18n';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef });
   const heroY = useTransform(scrollYProgress, [0, 0.2], [0, 100]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+  const t = useT();
+  // Titles with a highlighted part: the translation marks where it goes with {hl}.
+  const [heroBefore, heroAfter] = t('landing.heroTitle').split('{hl}');
+  const [featBefore, featAfter] = t('landing.featuresTitle').split('{hl}');
 
   return (
     <div
@@ -36,12 +42,13 @@ export default function Home() {
         </div>
 
         <div className="flex gap-4 items-center text-sm font-medium text-apple-text-gray">
-          <a href="#how-it-works" className="hover:text-foreground transition-colors hidden sm:block">How it Works</a>
-          <a href="#features" className="hover:text-foreground transition-colors hidden sm:block">Features</a>
-          <a href="/login" className="hover:text-foreground transition-colors hidden sm:block">Sign In</a>
-          <a href="/dashboard" className="hover:text-foreground transition-colors hidden sm:block">Dashboard</a>
+          <a href="#how-it-works" className="hover:text-foreground transition-colors hidden sm:block">{t('landing.navHow')}</a>
+          <a href="#features" className="hover:text-foreground transition-colors hidden sm:block">{t('landing.navFeatures')}</a>
+          <a href="/login" className="hover:text-foreground transition-colors hidden sm:block">{t('auth.signIn')}</a>
+          <a href="/dashboard" className="hover:text-foreground transition-colors hidden sm:block">{t('landing.navDashboard')}</a>
+          <LanguageSwitcher />
           <a href="#upload" className="px-5 py-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-violet-600 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/30 hover:scale-105 transition-all duration-300">
-            Try Free
+            {t('landing.tryFree')}
           </a>
         </div>
       </nav>
@@ -73,7 +80,7 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect border border-indigo-500/25 text-sm font-semibold text-indigo-600 dark:text-indigo-400 mb-8">
               <Zap className="w-3.5 h-3.5" />
-              AI-Powered ATS Analysis
+              {t('landing.badge')}
             </div>
           </motion.div>
 
@@ -84,8 +91,7 @@ export default function Home() {
             transition={{ duration: 0.9, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
             className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-balance mb-7 leading-[1.04]"
           >
-            Check If Your Resume<br className="hidden md:block" /> Passes{' '}
-            <span className="gradient-text">ATS</span> in Seconds.
+            {heroBefore}<span className="gradient-text">{t('landing.heroHighlight')}</span>{heroAfter}
           </motion.h1>
 
           {/* Sub */}
@@ -95,8 +101,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className="text-lg md:text-xl text-apple-text-gray text-balance mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            Upload your resume and instantly get your ATS compatibility score,
-            keyword analysis, and personalised tips sent straight to your inbox.
+            {t('landing.heroSubtitle')}
           </motion.p>
 
           {/* CTAs */}
@@ -110,14 +115,14 @@ export default function Home() {
               href="#upload"
               className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-full font-bold text-lg shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105 transition-all duration-300 flex items-center justify-center"
             >
-              Analyse My Resume
+              {t('landing.ctaAnalyse')}
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </a>
             <a
               href="#how-it-works"
               className="w-full sm:w-auto px-8 py-4 glass-effect rounded-full font-semibold text-lg hover:border-indigo-500/40 transition-all duration-300 text-center"
             >
-              See How It Works
+              {t('landing.ctaHow')}
             </a>
           </motion.div>
 
@@ -135,10 +140,10 @@ export default function Home() {
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    <span className="text-sm font-semibold text-apple-text-gray">ATS Report Preview</span>
+                    <span className="text-sm font-semibold text-apple-text-gray">{t('landing.previewTitle')}</span>
                   </div>
                   <span className="text-xs px-2.5 py-1 rounded-full bg-green-400/10 text-green-500 font-bold border border-green-500/20">
-                    PASS
+                    {t('landing.pass')}
                   </span>
                 </div>
 
@@ -171,9 +176,9 @@ export default function Home() {
                   {/* Category mini bars */}
                   <div className="flex-1 space-y-2">
                     {[
-                      { label: 'Keywords', val: 82, color: 'from-indigo-500 to-violet-500' },
-                      { label: 'Formatting', val: 90, color: 'from-green-400 to-emerald-500' },
-                      { label: 'Impact', val: 64, color: 'from-amber-400 to-orange-500' },
+                      { label: t('landing.keywords'), val: 82, color: 'from-indigo-500 to-violet-500' },
+                      { label: t('landing.formatting'), val: 90, color: 'from-green-400 to-emerald-500' },
+                      { label: t('landing.impact'), val: 64, color: 'from-amber-400 to-orange-500' },
                     ].map(item => (
                       <div key={item.label} className="flex items-center gap-2">
                         <span className="text-xs text-apple-text-gray w-20">{item.label}</span>
@@ -191,8 +196,8 @@ export default function Home() {
 
                 <div className="bg-indigo-500/6 border border-indigo-500/12 rounded-xl p-3">
                   <p className="text-xs text-apple-text-gray leading-relaxed">
-                    <span className="font-semibold text-foreground">Top suggestion:</span>{' '}
-                    Add quantified achievements to boost your impact score by ~15 points.
+                    <span className="font-semibold text-foreground">{t('landing.topSuggestion')}</span>{' '}
+                    {t('landing.topSuggestionText')}
                   </p>
                 </div>
               </div>
@@ -213,11 +218,11 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect border border-indigo-500/22 text-sm font-semibold text-indigo-600 dark:text-indigo-400 mb-6">
               <Target className="w-3.5 h-3.5" />
-              Simple Process
+              {t('landing.processBadge')}
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Four Steps to a Better Resume.</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t('landing.processTitle')}</h2>
             <p className="text-xl text-apple-text-gray max-w-xl mx-auto">
-              A seamless flow engineered to help you land more interviews.
+              {t('landing.processSubtitle')}
             </p>
           </motion.div>
 
@@ -225,29 +230,29 @@ export default function Home() {
             {[
               {
                 step: '01',
-                title: 'Upload Resume',
-                desc: 'Drag-and-drop your PDF or DOCX securely.',
+                title: t('landing.step1Title'),
+                desc: t('landing.step1Desc'),
                 icon: FileSearch,
                 color: 'from-indigo-500 to-blue-500',
               },
               {
                 step: '02',
-                title: 'AI Scanning',
-                desc: 'Our AI parses your resume against real ATS logic.',
+                title: t('landing.step2Title'),
+                desc: t('landing.step2Desc'),
                 icon: Activity,
                 color: 'from-violet-500 to-indigo-500',
               },
               {
                 step: '03',
-                title: 'Get Score',
-                desc: 'See your ATS compatibility score instantly.',
+                title: t('landing.step3Title'),
+                desc: t('landing.step3Desc'),
                 icon: CheckCircle,
                 color: 'from-blue-500 to-violet-500',
               },
               {
                 step: '04',
-                title: 'Receive Report',
-                desc: 'Full analysis with action items in your inbox.',
+                title: t('landing.step4Title'),
+                desc: t('landing.step4Desc'),
                 icon: Mail,
                 color: 'from-purple-500 to-violet-500',
               },
@@ -270,7 +275,7 @@ export default function Home() {
                   <item.icon className="w-6 h-6 text-white" />
                 </div>
                 <div className="text-xs font-bold text-indigo-500 dark:text-indigo-400 mb-2 tracking-wider uppercase">
-                  Step {item.step}
+                  {t('landing.step', { n: item.step })}
                 </div>
                 <h3 className="text-lg font-bold mb-2">{item.title}</h3>
                 <p className="text-apple-text-gray text-sm leading-relaxed">{item.desc}</p>
@@ -300,20 +305,19 @@ export default function Home() {
               <div>
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect border border-indigo-500/22 text-sm font-semibold text-indigo-600 dark:text-indigo-400 mb-6">
                   <Shield className="w-3.5 h-3.5" />
-                  Features
+                  {t('landing.navFeatures')}
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                  Beat the{' '}
-                  <span className="gradient-text">Resume Black Hole.</span>
+                  {featBefore}<span className="gradient-text">{t('landing.featuresHighlight')}</span>{featAfter}
                 </h2>
               </div>
 
               <div className="space-y-5">
                 {[
-                  'ATS Score Analysis based on industry standards.',
-                  'Keyword Match Detection for hard and soft skills.',
-                  'Resume Formatting Check for invisible characters.',
-                  'Instant Email Report with actionable improvement tips.',
+                  t('landing.feature1'),
+                  t('landing.feature2'),
+                  t('landing.feature3'),
+                  t('landing.feature4'),
                 ].map((feature, idx) => (
                   <motion.div
                     key={idx}
@@ -337,7 +341,7 @@ export default function Home() {
                 href="#upload"
                 className="inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-full font-bold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-105 transition-all duration-300 group"
               >
-                Analyse for Free
+                {t('landing.ctaFree')}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </motion.div>
@@ -374,16 +378,16 @@ export default function Home() {
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
                       <span className="text-5xl font-bold gradient-text">78%</span>
-                      <span className="text-sm text-apple-text-gray font-medium mt-1">ATS Score</span>
+                      <span className="text-sm text-apple-text-gray font-medium mt-1">{t('landing.atsScore')}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   {[
-                    { label: 'Keywords Match', value: 82, color: 'from-indigo-500 to-blue-500', badge: 'Good' },
-                    { label: 'Formatting', value: 92, color: 'from-green-400 to-emerald-500', badge: 'Excellent' },
-                    { label: 'Impact Score', value: 63, color: 'from-amber-400 to-orange-500', badge: 'Improve' },
+                    { label: t('landing.keywordsMatch'), value: 82, color: 'from-indigo-500 to-blue-500', badge: t('landing.good') },
+                    { label: t('landing.formatting'), value: 92, color: 'from-green-400 to-emerald-500', badge: t('landing.excellent') },
+                    { label: t('landing.impactScore'), value: 63, color: 'from-amber-400 to-orange-500', badge: t('landing.improve') },
                   ].map((item, idx) => (
                     <div key={item.label} className="flex items-center gap-3">
                       <span className="text-sm font-medium text-apple-text-gray w-32 shrink-0">
@@ -426,11 +430,11 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect border border-indigo-500/22 text-sm font-semibold text-indigo-600 dark:text-indigo-400 mb-6">
               <TrendingUp className="w-3.5 h-3.5" />
-              Free Analysis
+              {t('landing.uploadBadge')}
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">Ready to check your score?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">{t('landing.uploadTitle')}</h2>
             <p className="text-xl text-apple-text-gray">
-              Completely free. Secure processing. No data stored.
+              {t('landing.uploadSubtitle')}
             </p>
           </motion.div>
 
@@ -454,7 +458,7 @@ export default function Home() {
           <span className="font-bold">ATS Analyzer</span>
         </div>
         <p className="text-apple-text-gray text-sm">
-          &copy; {new Date().getFullYear()} ATS Analyzer. All rights reserved.
+          &copy; {new Date().getFullYear()} ATS Analyzer. {t('landing.rights')}
         </p>
       </footer>
     </div>

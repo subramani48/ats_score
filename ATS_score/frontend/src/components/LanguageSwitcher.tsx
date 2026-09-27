@@ -1,36 +1,14 @@
 'use client';
 
-import { useState, useRef, useEffect, useSyncExternalStore } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Globe, ChevronDown } from 'lucide-react';
-import { DEFAULT_LOCALE, LOCALES, LOCALE_LABELS, type Locale } from '@/i18n/config';
+import { LOCALES, LOCALE_LABELS } from '@/i18n/config';
+import { useLocale, useT } from '@/i18n';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const STORAGE_KEY = 'ats-locale';
-
-const subscribe = (onChange: () => void) => {
-  window.addEventListener('storage', onChange);
-  return () => window.removeEventListener('storage', onChange);
-};
-const readLocale = (): Locale => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return LOCALES.find(l => l === stored) ?? DEFAULT_LOCALE;
-};
-
-// NOTE: only the choice is stored so far; the pages are not translated yet (src/i18n/messages holds the
-// draft texts, but nothing reads them). Wiring translations in is a product decision.
-export function useLocale() {
-  const locale = useSyncExternalStore(subscribe, readLocale, () => DEFAULT_LOCALE);
-
-  const setLocale = (l: Locale) => {
-    localStorage.setItem(STORAGE_KEY, l);
-    window.location.reload();
-  };
-
-  return { locale, setLocale };
-}
 
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useLocale();
+  const t = useT();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -42,7 +20,7 @@ export default function LanguageSwitcher() {
 
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen(!open)}
+      <button onClick={() => setOpen(!open)} aria-label={t('common.language')} aria-expanded={open}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
         <Globe className="w-3.5 h-3.5 text-gray-400" />
         <span className="text-xs font-medium">{LOCALE_LABELS[locale]}</span>
@@ -53,9 +31,9 @@ export default function LanguageSwitcher() {
         {open && (
           <motion.div initial={{ opacity: 0, y: -4, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.97 }}
             transition={{ duration: 0.12 }}
-            className="absolute right-0 top-full mt-1.5 w-44 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
+            className="absolute right-0 top-full mt-1.5 w-40 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 rounded-xl shadow-xl overflow-hidden z-50">
             {LOCALES.map(l => (
-              <button key={l} onClick={() => { setLocale(l); setOpen(false); }}
+              <button key={l} lang={l} onClick={() => { setLocale(l); setOpen(false); }}
                 className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${locale === l ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300'}`}>
                 {LOCALE_LABELS[l]}
                 {locale === l && <span className="ml-auto text-xs text-indigo-500">✓</span>}

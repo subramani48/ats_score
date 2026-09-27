@@ -5,11 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, Zap, Building2, ChevronRight, X } from 'lucide-react';
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api, type SubscriptionTier as TierData } from '@/lib/api';
+import { useT, type MessageKey } from '@/i18n';
 
 const TIER_CONFIG = {
-  free:       { label: 'Free',       Icon: Zap,       color: 'from-gray-400 to-gray-500',    badge: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' },
-  pro:        { label: 'Pro',        Icon: Crown,      color: 'from-indigo-500 to-violet-600', badge: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' },
-  enterprise: { label: 'Enterprise', Icon: Building2,  color: 'from-amber-500 to-orange-500',  badge: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300' },
+  free:       { label: 'plan.free' as MessageKey,       Icon: Zap,       color: 'from-gray-400 to-gray-500',    badge: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' },
+  pro:        { label: 'plan.pro' as MessageKey,        Icon: Crown,      color: 'from-indigo-500 to-violet-600', badge: 'bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300' },
+  enterprise: { label: 'plan.enterprise' as MessageKey, Icon: Building2,  color: 'from-amber-500 to-orange-500',  badge: 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300' },
 };
 
 function UsageBar({ label, used, limit }: { label: string; used: number; limit: number }) {
@@ -32,6 +33,7 @@ export default function SubscriptionBadge() {
   const { token } = useAnalysisStore();
   const [tierData, setTierData] = useState<TierData | null>(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const t = useT();
 
   useEffect(() => {
     if (!token) return;
@@ -51,7 +53,7 @@ export default function SubscriptionBadge() {
       <button onClick={() => setShowUpgrade(true)}
         className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.badge} transition-all hover:opacity-80`}>
         <Icon className="w-3 h-3" />
-        {cfg.label}
+        {t(cfg.label)}
         {tierData.tier === 'free' && <ChevronRight className="w-3 h-3 opacity-60" />}
       </button>
 
@@ -66,8 +68,8 @@ export default function SubscriptionBadge() {
               className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 rounded-2xl w-full max-w-md p-6">
 
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold">Your Plan</h2>
-                <button onClick={() => setShowUpgrade(false)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
+                <h2 className="text-lg font-bold">{t('plan.yourPlan')}</h2>
+                <button onClick={() => setShowUpgrade(false)} aria-label={t('common.close')} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -76,35 +78,34 @@ export default function SubscriptionBadge() {
               <div className={`bg-gradient-to-r ${cfg.color} rounded-xl p-4 text-white mb-5`}>
                 <div className="flex items-center gap-2 mb-1">
                   <Icon className="w-5 h-5" />
-                  <span className="font-bold text-lg">{cfg.label} Plan</span>
+                  <span className="font-bold text-lg">{t('plan.planName', { plan: t(cfg.label) })}</span>
                 </div>
-                <p className="text-white/80 text-sm">Your current plan</p>
+                <p className="text-white/80 text-sm">{t('plan.current')}</p>
               </div>
 
               {/* Usage */}
               <div className="space-y-3 mb-5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">This Month&apos;s Usage</h3>
-                <UsageBar label="Analyses" used={tierData.usage.analyses} limit={tierData.limits.analysesPerMonth} />
-                <UsageBar label="Cover Letters" used={tierData.usage.coverLetters} limit={tierData.limits.coverLettersPerMonth} />
-                <UsageBar label="Interview Sessions" used={tierData.usage.interviews} limit={tierData.limits.interviewsPerMonth} />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">{t('plan.usageThisMonth')}</h3>
+                <UsageBar label={t('plan.analyses')} used={tierData.usage.analyses} limit={tierData.limits.analysesPerMonth} />
+                <UsageBar label={t('plan.coverLetters')} used={tierData.usage.coverLetters} limit={tierData.limits.coverLettersPerMonth} />
+                <UsageBar label={t('plan.interviews')} used={tierData.usage.interviews} limit={tierData.limits.interviewsPerMonth} />
               </div>
 
               {/* Upgrade CTA for free users */}
               {tierData.tier === 'free' && (
                 <div className="border border-indigo-200 dark:border-indigo-500/30 rounded-xl p-4 bg-indigo-50 dark:bg-indigo-500/10">
                   <h3 className="font-bold text-sm text-indigo-700 dark:text-indigo-300 mb-2">
-                    🚀 Upgrade to Pro
+                    🚀 {t('plan.upgradeTitle')}
                   </h3>
                   <ul className="space-y-1.5 text-xs text-indigo-600 dark:text-indigo-400 mb-3">
-                    <li>✓ 50 analyses per month</li>
-                    <li>✓ 20 cover letters & interviews</li>
-                    <li>✓ 10 JDs per batch analysis</li>
-                    <li>✓ Priority queue processing</li>
-                    <li>✓ Advanced analytics & insights</li>
+                    <li>✓ {t('plan.perk1')}</li>
+                    <li>✓ {t('plan.perk2')}</li>
+                    <li>✓ {t('plan.perk3')}</li>
+                    <li>✓ {t('plan.perk4')}</li>
+                    <li>✓ {t('plan.perk5')}</li>
                   </ul>
                   <p className="text-xs text-indigo-700 dark:text-indigo-300 bg-white/70 dark:bg-black/20 rounded-lg px-3 py-2">
-                    Online payment is coming soon. To upgrade now, contact the site administrator; your plan
-                    changes as soon as they update it, and you will get a notification.
+                    {t('plan.contactAdmin')}
                   </p>
                 </div>
               )}

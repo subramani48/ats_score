@@ -115,7 +115,7 @@ docker compose up --build
 
 ## Known limitations
 
-- **Language switcher** stores the chosen language, but the pages are not translated (`frontend/src/i18n/messages` holds unused draft texts).
+- The website is in English, Tamil and Hindi (language switcher on every page; texts in `frontend/src/i18n/messages`, where `en.ts` is the source and a missing key fails the type check). AI-written content (analyses, cover letters, questions), server error messages and the exported PDF stay in English.
 - **No online payments**: users cannot upgrade themselves (the plan-upgrade route refuses). An admin changes a user's plan on the Admin page (Users table, or `PATCH /api/v1/admin/users/:id/tier`), and the user gets a notification.
 - Signed-out visitors can upload without logging in, so plan limits apply only to logged-in users.
 - Gemini's free tier allows very few requests per day; a paid key is needed for real use.

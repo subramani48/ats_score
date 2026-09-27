@@ -9,12 +9,13 @@ import { api } from '@/lib/api';
 import type { AnalyticsData, Analysis } from '@/lib/api';
 import ScoreTrendChart from '@/components/dashboard/ScoreTrendChart';
 import AnalysisHistory from '@/components/dashboard/AnalysisHistory';
+import { useT, type MessageKey } from '@/i18n';
 
-const QUICK_ACTIONS = [
-  { href: '/dashboard/cover-letter', label: 'Cover Letter', desc: 'AI-powered', Icon: FileText, color: 'from-purple-500 to-pink-500' },
-  { href: '/dashboard/interview',    label: 'Interview Prep', desc: 'Q&A Generator', Icon: MessageSquare, color: 'from-blue-500 to-indigo-500' },
-  { href: '/dashboard/batch',        label: 'Batch Analyze', desc: 'Multi-JD', Icon: Layers, color: 'from-green-500 to-emerald-500' },
-  { href: '/dashboard/company-ats',  label: 'Company ATS', desc: 'Targeted', Icon: Building2, color: 'from-amber-500 to-orange-500' },
+const QUICK_ACTIONS: Array<{ href: string; label: MessageKey; desc: MessageKey; Icon: typeof FileText; color: string }> = [
+  { href: '/dashboard/cover-letter', label: 'nav.coverLetter', desc: 'overview.qaCoverLetter', Icon: FileText, color: 'from-purple-500 to-pink-500' },
+  { href: '/dashboard/interview',    label: 'nav.interview',   desc: 'overview.qaInterview',   Icon: MessageSquare, color: 'from-blue-500 to-indigo-500' },
+  { href: '/dashboard/batch',        label: 'nav.batch',       desc: 'overview.qaBatch',       Icon: Layers, color: 'from-green-500 to-emerald-500' },
+  { href: '/dashboard/company-ats',  label: 'nav.companyAts',  desc: 'overview.qaCompanyAts',  Icon: Building2, color: 'from-amber-500 to-orange-500' },
 ];
 
 export default function DashboardPage() {
@@ -24,6 +25,7 @@ export default function DashboardPage() {
   const [history, setHistory]     = useState<Analysis[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState('');
+  const t = useT();
 
   useEffect(() => {
     if (!token) { router.push('/login'); return; }
@@ -45,13 +47,13 @@ export default function DashboardPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-2xl font-bold">Overview</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Track your ATS score progress and resume performance.</p>
+        <h1 className="text-2xl font-bold">{t('overview.title')}</h1>
+        <p className="text-sm text-gray-400 mt-0.5">{t('overview.subtitle')}</p>
       </motion.div>
 
       {error && (
         <div className="flex items-center gap-2 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-sm text-amber-600 dark:text-amber-400">
-          <AlertTriangle className="w-4 h-4 shrink-0" />{error} — Make sure the backend is running.
+          <AlertTriangle className="w-4 h-4 shrink-0" />{error} — {t('overview.backendHint')}
         </div>
       )}
 
@@ -59,10 +61,10 @@ export default function DashboardPage() {
       {analytics && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: 'Total Analyses', value: analytics.totalAnalyses, Icon: BarChart2, color: 'from-indigo-500 to-violet-600' },
-            { label: 'Avg Score',  value: `${analytics.avgScore}%`, Icon: Target, color: 'from-blue-500 to-indigo-600' },
-            { label: 'Improvement', value: `${analytics.scoreImprovement > 0 ? '+' : ''}${analytics.scoreImprovement}pts`, Icon: TrendingUp, color: analytics.scoreImprovement >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600' },
-            { label: 'Best Score', value: `${analytics.bestScore.score}%`, Icon: Award, color: 'from-amber-500 to-orange-500' },
+            { label: t('overview.totalAnalyses'), value: analytics.totalAnalyses, Icon: BarChart2, color: 'from-indigo-500 to-violet-600' },
+            { label: t('overview.avgScore'),  value: `${analytics.avgScore}%`, Icon: Target, color: 'from-blue-500 to-indigo-600' },
+            { label: t('overview.improvement'), value: t('overview.points', { n: `${analytics.scoreImprovement > 0 ? '+' : ''}${analytics.scoreImprovement}` }), Icon: TrendingUp, color: analytics.scoreImprovement >= 0 ? 'from-green-500 to-emerald-600' : 'from-red-500 to-rose-600' },
+            { label: t('overview.bestScore'), value: `${analytics.bestScore.score}%`, Icon: Award, color: 'from-amber-500 to-orange-500' },
           ].map(({ label, value, Icon, color }, i) => (
             <motion.div key={label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
@@ -79,7 +81,7 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Quick Actions</h2>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">{t('overview.quickActions')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {QUICK_ACTIONS.map(({ href, label, desc, Icon, color }, i) => (
             <motion.a key={href} href={href} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
@@ -89,8 +91,8 @@ export default function DashboardPage() {
                 <Icon className="w-4.5 h-4.5 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold">{label}</p>
-                <p className="text-xs text-gray-400">{desc}</p>
+                <p className="text-sm font-semibold">{t(label)}</p>
+                <p className="text-xs text-gray-400">{t(desc)}</p>
               </div>
             </motion.a>
           ))}
@@ -100,13 +102,13 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
-          <h2 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-4">Score Over Time</h2>
+          <h2 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-4">{t('overview.scoreOverTime')}</h2>
           <ScoreTrendChart data={analytics?.scoreOverTime ?? []} />
         </div>
 
         {analytics && analytics.topMissingKeywords.length > 0 && (
           <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
-            <h2 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-4">Top Missing Keywords</h2>
+            <h2 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-4">{t('overview.topMissing')}</h2>
             <div className="space-y-2">
               {analytics.topMissingKeywords.slice(0, 8).map((kw, i) => (
                 <div key={String(kw)} className="flex items-center gap-3">
@@ -117,14 +119,14 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-gray-400 mt-4">Keywords common in JDs but missing from your resumes.</p>
+            <p className="text-xs text-gray-400 mt-4">{t('overview.topMissingHint')}</p>
           </div>
         )}
       </div>
 
       {/* History */}
       <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6">
-        <h2 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-4">Analysis History</h2>
+        <h2 className="font-bold text-xs uppercase tracking-wider text-gray-400 mb-4">{t('overview.history')}</h2>
         <AnalysisHistory analyses={history} onSelect={(id) => router.push(`/dashboard/analysis/${id}`)} />
       </div>
     </div>

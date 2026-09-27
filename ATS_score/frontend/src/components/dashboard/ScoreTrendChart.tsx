@@ -1,5 +1,7 @@
 'use client';
 
+import { useLocale, useT } from '@/i18n';
+import { DATE_LOCALES } from '@/i18n/config';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 interface DataPoint {
@@ -24,17 +26,19 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
 };
 
 export default function ScoreTrendChart({ data }: Props) {
+  const t = useT();
+  const { locale } = useLocale();
   if (!data.length) {
     return (
       <div className="flex items-center justify-center h-48 text-gray-400 text-sm">
-        No analysis history yet. Run your first analysis to see trends.
+        {t('overview.chartEmpty')}
       </div>
     );
   }
 
   const formatted = data.map(d => ({
     ...d,
-    date: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(d.date).toLocaleDateString(DATE_LOCALES[locale], { month: 'short', day: 'numeric' }),
   }));
 
   return (
@@ -44,7 +48,7 @@ export default function ScoreTrendChart({ data }: Props) {
         <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
         <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
         <Tooltip content={<CustomTooltip />} />
-        <ReferenceLine y={70} stroke="#22c55e" strokeDasharray="4 4" label={{ value: 'ATS Pass', fill: '#22c55e', fontSize: 10 }} />
+        <ReferenceLine y={70} stroke="#22c55e" strokeDasharray="4 4" label={{ value: t('overview.atsPass'), fill: '#22c55e', fontSize: 10 }} />
         <Line type="monotone" dataKey="score" stroke="url(#lineGrad)" strokeWidth={2.5} dot={{ fill: '#6366f1', r: 4 }} activeDot={{ r: 6 }} />
         <defs>
           <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">

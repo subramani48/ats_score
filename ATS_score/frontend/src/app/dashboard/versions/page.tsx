@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { GitBranch, Plus, Eye, GitCompare, Clock, Tag, TrendingUp, TrendingDown, Minus, ChevronDown } from 'lucide-react';
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api, apiFetch, type ResumeVersion } from '@/lib/api';
+import { useLocale, useT } from '@/i18n';
+import { DATE_LOCALES } from '@/i18n/config';
 
 interface Resume { id: string; originalName: string; createdAt: string; versions: ResumeVersion[] }
 
@@ -21,6 +23,8 @@ export default function VersionsPage() {
   const [compareResult, setCompareResult] = useState<ResumeVersion[]>([]);
   const [comparing, setComparing]     = useState(false);
   const [expandedVer, setExpandedVer] = useState<string | null>(null);
+  const t = useT();
+  const { locale } = useLocale();
 
   useEffect(() => {
     if (!token) return;
@@ -44,7 +48,7 @@ export default function VersionsPage() {
     try {
       const r = await api.getResumeVersions(resume.id, token ?? '');
       setVersions(r.data);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Failed to load versions'); }
+    } catch (e) { setError(e instanceof Error ? e.message : t('versions.loadFailed')); }
   };
 
   const createSnapshot = async () => {
@@ -55,7 +59,7 @@ export default function VersionsPage() {
       setNewLabel('');
       const r = await api.getResumeVersions(selectedResume.id, token ?? '');
       setVersions(r.data);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Failed to create snapshot'); }
+    } catch (e) { setError(e instanceof Error ? e.message : t('versions.snapshotFailed')); }
     finally { setCreatingSnap(false); }
   };
 
@@ -69,7 +73,7 @@ export default function VersionsPage() {
     try {
       const r = await api.compareVersions(compareIds, token ?? '');
       setCompareResult(r.data);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Comparison failed'); }
+    } catch (e) { setError(e instanceof Error ? e.message : t('versions.compareFailed')); }
     finally { setComparing(false); }
   };
 
@@ -86,22 +90,22 @@ export default function VersionsPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <GitBranch className="w-6 h-6 text-violet-500" />Resume Versions
+          <GitBranch className="w-6 h-6 text-violet-500" />{t('nav.versions')}
         </h1>
-        <p className="text-sm text-gray-400 mt-0.5">Track your resume evolution with Git-like version control</p>
+        <p className="text-sm text-gray-400 mt-0.5">{t('versions.subtitle')}</p>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Resume List */}
         <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">Your Resumes</h2>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-gray-400">{t('versions.yourResumes')}</h2>
           {loading ? (
             <div className="flex items-center justify-center h-24"><div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" /></div>
           ) : resumes.length === 0 ? (
             <div className="text-center py-8 text-gray-400 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl">
               <GitBranch className="w-8 h-8 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">No resumes found</p>
-              <p className="text-xs mt-1">Upload a resume first</p>
+              <p className="text-sm">{t('versions.noResumes')}</p>
+              <p className="text-xs mt-1">{t('versions.uploadFirst')}</p>
             </div>
           ) : (
             resumes.map(r => (
@@ -112,7 +116,7 @@ export default function VersionsPage() {
                     : 'border-gray-100 dark:border-white/10 bg-white dark:bg-white/5 hover:border-violet-300 dark:hover:border-violet-500/30'
                 }`}>
                 <p className="text-sm font-semibold truncate">{r.originalName}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{new Date(r.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{new Date(r.createdAt).toLocaleDateString(DATE_LOCALES[locale])}</p>
               </button>
             ))
           )}
@@ -123,23 +127,23 @@ export default function VersionsPage() {
           {!selectedResume ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-400 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl">
               <GitBranch className="w-12 h-12 opacity-20 mb-3" />
-              <p className="text-sm">Select a resume to view versions</p>
+              <p className="text-sm">{t('versions.selectResume')}</p>
             </div>
           ) : (
             <>
               {/* Create Snapshot */}
               <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-4">
-                <h3 className="text-sm font-semibold mb-3">Create Snapshot</h3>
+                <h3 className="text-sm font-semibold mb-3">{t('versions.createSnapshot')}</h3>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Tag className="absolute left-3 top-2.5 w-3.5 h-3.5 text-gray-400" />
                     <input value={newLabel} onChange={e => setNewLabel(e.target.value)}
-                      placeholder="Label (e.g. After adding projects)"
+                      placeholder={t('versions.labelPlaceholder')} aria-label={t('versions.label')}
                       className="w-full pl-8 pr-3 py-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-violet-500 transition-all" />
                   </div>
                   <button onClick={createSnapshot} disabled={creatingSnap}
                     className="flex items-center gap-1.5 px-4 py-2 bg-violet-500 text-white rounded-xl text-sm font-semibold hover:bg-violet-600 disabled:opacity-50 transition-colors">
-                    <Plus className="w-3.5 h-3.5" />{creatingSnap ? 'Saving...' : 'Snapshot'}
+                    <Plus className="w-3.5 h-3.5" />{creatingSnap ? t('common.saving') : t('versions.snapshot')}
                   </button>
                 </div>
               </div>
@@ -149,11 +153,11 @@ export default function VersionsPage() {
                 <div className="flex items-center gap-3 p-3 bg-violet-50 dark:bg-violet-500/10 border border-violet-200 dark:border-violet-500/20 rounded-xl">
                   <GitCompare className="w-4 h-4 text-violet-600 dark:text-violet-400 shrink-0" />
                   <p className="text-xs text-violet-700 dark:text-violet-300 flex-1">
-                    {compareIds.length === 0 ? 'Select 2-3 versions to compare' : `${compareIds.length} selected`}
+                    {compareIds.length === 0 ? t('versions.selectToCompare') : t('versions.selected', { n: compareIds.length })}
                   </p>
                   <button onClick={runCompare} disabled={compareIds.length < 2 || comparing}
                     className="px-3 py-1.5 bg-violet-500 text-white rounded-lg text-xs font-semibold hover:bg-violet-600 disabled:opacity-40 transition-colors">
-                    {comparing ? 'Comparing...' : 'Compare'}
+                    {comparing ? t('versions.comparing') : t('versions.compare')}
                   </button>
                 </div>
               )}
@@ -166,16 +170,16 @@ export default function VersionsPage() {
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                     className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-5">
                     <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-                      <GitCompare className="w-4 h-4 text-violet-500" />Version Comparison
+                      <GitCompare className="w-4 h-4 text-violet-500" />{t('versions.comparison')}
                     </h3>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-gray-100 dark:border-white/10">
-                            <th className="text-left py-2 pr-4 text-xs font-bold uppercase tracking-wider text-gray-400">Version</th>
-                            <th className="text-left py-2 pr-4 text-xs font-bold uppercase tracking-wider text-gray-400">Label</th>
-                            <th className="text-left py-2 pr-4 text-xs font-bold uppercase tracking-wider text-gray-400">Score</th>
-                            <th className="text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-400">Domain</th>
+                            <th className="text-left py-2 pr-4 text-xs font-bold uppercase tracking-wider text-gray-400">{t('versions.version')}</th>
+                            <th className="text-left py-2 pr-4 text-xs font-bold uppercase tracking-wider text-gray-400">{t('versions.label')}</th>
+                            <th className="text-left py-2 pr-4 text-xs font-bold uppercase tracking-wider text-gray-400">{t('upload.tabScore')}</th>
+                            <th className="text-left py-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('common.domain')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-white/10">
@@ -204,11 +208,11 @@ export default function VersionsPage() {
               {versions.length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
                   <Clock className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">No versions yet — create a snapshot to start tracking</p>
+                  <p className="text-sm">{t('versions.noVersions')}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">Version Timeline ({versions.length})</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">{t('versions.timeline', { n: versions.length })}</h3>
                   {versions.map((v, i) => (
                     <motion.div key={v.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                       className={`border rounded-xl overflow-hidden transition-all ${
@@ -216,16 +220,17 @@ export default function VersionsPage() {
                       }`}>
                       <div className="flex items-center gap-3 p-3">
                         <input type="checkbox" checked={compareIds.includes(v.id)} onChange={() => toggleCompare(v.id)}
+                          aria-label={t('versions.compareThis', { n: v.versionNum })}
                           className="w-4 h-4 rounded accent-violet-500 cursor-pointer" />
                         <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center shrink-0">
                           <span className="text-xs font-black text-violet-600 dark:text-violet-400">v{v.versionNum}</span>
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium">{v.label ?? `Version ${v.versionNum}`}</p>
+                            <p className="text-sm font-medium">{v.label ?? t('versions.versionN', { n: v.versionNum })}</p>
                             {i > 0 && <ScoreDiff curr={v.score} prev={versions[i - 1].score} />}
                           </div>
-                          <p className="text-xs text-gray-400">{new Date(v.createdAt).toLocaleDateString()} · {v.domain ?? 'No domain'}</p>
+                          <p className="text-xs text-gray-400">{new Date(v.createdAt).toLocaleDateString(DATE_LOCALES[locale])} · {v.domain ?? t('versions.noDomain')}</p>
                         </div>
                         {v.score != null && (
                           <span className={`px-2.5 py-1 rounded-full text-xs font-bold shrink-0 ${v.score >= 70 ? 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300' : v.score >= 50 ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300' : 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300'}`}>
@@ -234,6 +239,7 @@ export default function VersionsPage() {
                         )}
                         {v.extractedText && (
                           <button onClick={() => setExpandedVer(expandedVer === v.id ? null : v.id)}
+                            aria-label={t('versions.showText')}
                             className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors">
                             {expandedVer === v.id ? <Eye className="w-4 h-4 text-violet-500" /> : <ChevronDown className="w-4 h-4" />}
                           </button>
