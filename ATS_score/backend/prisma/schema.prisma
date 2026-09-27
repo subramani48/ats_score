@@ -127,6 +127,26 @@ model BatchJob {
   @@index([userId])
 }
 
+// A resume analysis waiting for or being worked on by a server (see queue.service.ts). Kept in the database
+// so a restart does not lose it and several servers can share the work. Deleted 10 minutes after it ends.
+model AnalysisJob {
+  id           String    @id
+  state        String    @default("waiting") // waiting | active | completed | failed
+  payload      Json // AnalysisJobPayload without the file
+  fileData     Bytes? // the uploaded resume; erased as soon as the job ends
+  progress     Json?
+  result       Json?
+  failedReason String?
+  attempts     Int       @default(0)
+  lockedBy     String? // the server working on it
+  lockedAt     DateTime? // renewed while working; an old value means that server stopped
+  createdAt    DateTime  @default(now())
+  finishedAt   DateTime?
+
+  @@index([state, createdAt])
+  @@index([finishedAt])
+}
+
 model ApiKey {
   id         String    @id @default(cuid())
   userId     String

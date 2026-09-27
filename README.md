@@ -111,11 +111,11 @@ docker compose up --build
 - Everything a user types or uploads is wrapped as untrusted data in AI prompts. Every AI call has a time limit, quota (429) and permanent errors are not retried, and users see only generic error messages. A rewritten resume is rejected if it claims a technology the original does not contain.
 - Job-description and LinkedIn fetching blocks internal and private network addresses.
 - Secrets live only in environment variables. `.env` files, `node_modules` and build output are git-ignored.
+- Resume analyses run as jobs saved in the database (`AnalysisJob` table), so a restart does not lose them and several server instances can share the work. A job whose server stops is picked up again after a minute (at most 3 runs); in that case the report email can arrive twice. The uploaded file is erased from the job when it ends, and finished jobs are deleted after 10 minutes.
 
 ## Known limitations
 
 - **Language switcher** stores the chosen language, but the pages are not translated (`frontend/src/i18n/messages` holds unused draft texts).
-- **Background jobs run in memory**: a server restart loses running analyses, and only one server instance is supported.
 - **Payments do not exist**: the plan-upgrade route always refuses.
 - Signed-out visitors can upload without logging in, so plan limits apply only to logged-in users.
 - Gemini's free tier allows very few requests per day; a paid key is needed for real use.

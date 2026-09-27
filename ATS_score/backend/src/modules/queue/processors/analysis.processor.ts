@@ -7,14 +7,17 @@ import { EmailService } from '../../email/email.service';
 import { NotificationService } from '../../notification/notification.service';
 import type { AnalysisJobPayload } from '../../../types';
 
-export interface InMemoryJob {
+export interface JobProgress {
+  step: string;
+  percent: number;
+  message: string;
+}
+
+/** The job being run, as handed over by QueueService. */
+export interface RunningJob {
   id: string;
   data: AnalysisJobPayload;
-  progress: { step: string; percent: number; message: string } | null;
-  state: 'waiting' | 'active' | 'completed' | 'failed';
-  returnvalue: any;
-  failedReason: string | null;
-  updateProgress(progress: { step: string; percent: number; message: string }): Promise<void>;
+  updateProgress(progress: JobProgress): Promise<void>;
 }
 
 @Injectable()
@@ -30,7 +33,7 @@ export class AnalysisProcessor {
     private readonly notification: NotificationService,
   ) {}
 
-  async process(job: InMemoryJob): Promise<unknown> {
+  async process(job: RunningJob): Promise<unknown> {
     const start = Date.now();
     const { resumeBuffer, mode, domain, jobDescription, userId, name, email, originalName, mimeType, sizeBytes } =
       job.data;
