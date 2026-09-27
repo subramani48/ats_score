@@ -14,6 +14,12 @@ A web application that scores a resume the way company hiring software (an ATS) 
 
 **Hosting:** the code lives on GitHub (`version.1.0`) and can be pushed unchanged to GitLab. CI is defined only for GitHub (`.github/workflows/ci.yml`); GitLab ignores it, so GitLab runs no CI unless a `.gitlab-ci.yml` is added.
 
+**Branches and commit author:**
+- **`version.1.0` has the current code.** GitHub's default branch is still `main`, which holds the older May 2026 version, so visitors see `main` first. The owner hasn't yet decided whether to make `version.1.0` the default or replace `main` with it.
+- On 2026-09-27 all 9 commits on `version.1.0` were rewritten to the owner's account, `SUBRAMANIYAM S <123858825+subramani48@users.noreply.github.com>`, and force-pushed. They had been recorded under another email. Only the author details changed, not the code. Anyone with an older clone of `version.1.0` should download it again.
+- `main` still has 3 commits from 2026-05-30 by `subbu <subbu@subbus-MacBook-Pro.local>`. A fix that rewrites only those 3 is ready but has not been run.
+- The repository's local git config commits as the owner's account above. Keep it that way, so new commits are credited to `subramani48`.
+
 **Not yet verified:**
 - The app has never been run end to end: no real database, Gemini key or SMTP account has been connected yet.
 - The database job queue (`AnalysisJob` table) is tested only against an in-memory stand-in, not real PostgreSQL.
