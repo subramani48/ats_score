@@ -18,7 +18,7 @@ services:
 
   backend:
     build:
-      context: ./ATS score /backend
+      context: ./ATS_score/backend
       dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
@@ -41,7 +41,7 @@ services:
 
   frontend:
     build:
-      context: ./ATS score /frontend
+      context: ./ATS_score/frontend
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5000}

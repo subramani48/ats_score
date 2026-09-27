@@ -6,8 +6,6 @@ A web application that scores a resume the way company hiring software (an ATS) 
 - **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS
 - **Language:** TypeScript throughout
 
-> The project folder is named `ATS score ` (with a trailing space). Quote the path in shell commands.
-
 ## Features
 
 **Resume analysis**
@@ -33,7 +31,7 @@ A web application that scores a resume the way company hiring software (an ATS) 
 ```
 .github/workflows/ci.yml     CI: install, Prisma client, type-check, tests, build (backend); lint, type-check, build (frontend)
 docker-compose.yml           PostgreSQL + backend + frontend
-ATS score /
+ATS_score/  
   backend/                   NestJS API
     src/modules/             one folder per feature (controller, service, dto, module)
     src/common/              shared guards, filters, interceptors, safe HTTP fetch, AI-output helpers
@@ -48,7 +46,7 @@ Requirements: Node.js 20, PostgreSQL, and a Google Gemini API key.
 
 ```bash
 # 1. Backend
-cd "ATS score /backend"
+cd ATS_score/backend
 cp .env.example .env          # then fill in the values (see the table below); never commit .env
 npm install
 npm run db:generate           # generate the Prisma client
@@ -56,7 +54,7 @@ npm run db:push               # create the tables in your database
 npm run start:dev             # API on http://localhost:5000  (health check: /health)
 
 # 2. Frontend (second terminal)
-cd "ATS score /frontend"
+cd ATS_score/frontend
 npm install
 npm run dev                   # website on http://localhost:3000
 ```
