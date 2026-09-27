@@ -16,8 +16,9 @@ export class SubscriptionController {
   // Blocked for everyone until a real payment step exists. This route used to let any logged-in
   // user set their own tier for free. When payments are added, upgrades must come from a verified
   // payment (for example a signed webhook), never from a request the user can send themselves.
+  // Until then an admin changes plans with PATCH /admin/users/:id/tier.
   @Post('upgrade')
   upgradeTier() {
-    throw new ForbiddenException('Plan upgrades are not available yet.');
+    throw new ForbiddenException('Online payment is not available yet. Please contact the site administrator to change your plan.');
   }
 }

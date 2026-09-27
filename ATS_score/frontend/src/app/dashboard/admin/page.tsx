@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { AdminStats } from '@/lib/api';
+import AdminUsers from '@/components/dashboard/AdminUsers';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function AdminPage() {
@@ -128,6 +129,9 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Users and their plans */}
+      {token && <AdminUsers token={token} />}
 
       {/* Recent Analyses */}
       <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden">

@@ -102,9 +102,10 @@ export default function SubscriptionBadge() {
                     <li>✓ Priority queue processing</li>
                     <li>✓ Advanced analytics & insights</li>
                   </ul>
-                  <button className="w-full py-2 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
-                    Upgrade to Pro — $9/mo
-                  </button>
+                  <p className="text-xs text-indigo-700 dark:text-indigo-300 bg-white/70 dark:bg-black/20 rounded-lg px-3 py-2">
+                    Online payment is coming soon. To upgrade now, contact the site administrator; your plan
+                    changes as soon as they update it, and you will get a notification.
+                  </p>
                 </div>
               )}
             </motion.div>

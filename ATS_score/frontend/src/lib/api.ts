@@ -122,6 +122,17 @@ export const api = {
   getAdminStats: (token: string) =>
     apiFetch<{ success: boolean; data: AdminStats }>('/admin/stats', { token }),
 
+  getAdminUsers: (token: string, page = 1, q = '') =>
+    apiFetch<{ success: boolean; data: AdminUserPage }>(
+      `/admin/users?${new URLSearchParams({ page: String(page), limit: '20', ...(q.trim() ? { q: q.trim() } : {}) })}`,
+      { token },
+    ),
+
+  setUserTier: (userId: string, tier: PlanTier, token: string) =>
+    apiFetch<{ success: boolean; data: AdminUser }>(`/admin/users/${encodeURIComponent(userId)}/tier`, {
+      method: 'PATCH', token, body: JSON.stringify({ tier }),
+    }),
+
   // ── LinkedIn Import ──────────────────────────────────────────
   importLinkedIn: (input: string, token?: string) =>
     apiFetch<{ success: boolean; data: LinkedInProfile }>('/scraper/linkedin-import', {
@@ -397,6 +408,25 @@ export interface ApiKeyEntry {
   usageCount: number;
   lastUsed: string | null;
   createdAt: string;
+}
+
+export type PlanTier = 'free' | 'pro' | 'enterprise';
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string | null;
+  tier: PlanTier;
+  role: string;
+  createdAt?: string;
+  _count?: { analyses: number };
+}
+
+export interface AdminUserPage {
+  users: AdminUser[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 export interface AdminStats {

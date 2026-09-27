@@ -1,9 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { UserNotificationsService } from '../user-notifications/user-notifications.service';
+import type { Tier } from '../subscription/subscription.service';
+
+const TIER_NAMES: Record<Tier, string> = { free: 'Free', pro: 'Pro', enterprise: 'Enterprise' };
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(AdminService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: UserNotificationsService,
+  ) {}
 
   async getPlatformStats() {
     const [totalUsers, totalAnalyses, totalCoverLetters, totalInterviews, recentAnalyses, topDomains, avgScoreAgg] =
@@ -68,11 +77,19 @@ export class AdminService {
     };
   }
 
-  async getUsers(page = 1, limit = 20) {
-    const skip = (page - 1) * limit;
+  async getUsers(page = 1, limit = 20, q?: string) {
+    // Query-string numbers can be anything; keep them sane so a bad value cannot load every user.
+    page  = Number.isInteger(page) && page > 0 ? page : 1;
+    limit = Number.isInteger(limit) ? Math.min(Math.max(limit, 1), 100) : 20;
+    const search = q?.trim().slice(0, 100);
+    const where = search
+      ? { OR: [{ email: { contains: search, mode: 'insensitive' as const } }, { name: { contains: search, mode: 'insensitive' as const } }] }
+      : {};
+
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
-        skip,
+        where,
+        skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
         select: {
@@ -85,8 +102,32 @@ export class AdminService {
           _count: { select: { analyses: true } },
         },
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where }),
     ]);
     return { success: true, data: { users, total, page, limit } };
+  }
+
+  async setUserTier(userId: string, tier: Tier, adminId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { tier: true } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { tier },
+      select: { id: true, email: true, name: true, tier: true, role: true },
+    });
+
+    // Audit trail: who changed which plan.
+    this.logger.log(`Admin ${adminId} set the plan of user ${userId} from ${user.tier} to ${tier}`);
+
+    if (user.tier !== tier) {
+      await this.notifications.create(
+        userId,
+        'Your plan has changed',
+        `You are now on the ${TIER_NAMES[tier]} plan. Your monthly limits have been updated.`,
+        'success',
+      );
+    }
+    return { success: true, data: updated };
   }
 }

@@ -24,7 +24,7 @@ A web application that scores a resume the way company hiring software (an ATS) 
 - Company battle card, and an application tracker with follow-up email drafts.
 
 **Accounts and administration**
-- Email and password sign-up (JWT), free / pro / enterprise plan limits, in-app notifications, admin statistics.
+- Email and password sign-up (JWT), free / pro / enterprise plan limits, in-app notifications, admin statistics, and an admin user list where plans are changed.
 - API keys for scripts and other apps: send `X-API-Key: ats_…` (or `Authorization: Bearer ats_…`) and the request acts as the key's owner. Keys are stored only as SHA-256 hashes, and they cannot manage other keys or open the admin area.
 
 ## Repository layout
@@ -116,6 +116,6 @@ docker compose up --build
 ## Known limitations
 
 - **Language switcher** stores the chosen language, but the pages are not translated (`frontend/src/i18n/messages` holds unused draft texts).
-- **Payments do not exist**: the plan-upgrade route always refuses.
+- **No online payments**: users cannot upgrade themselves (the plan-upgrade route refuses). An admin changes a user's plan on the Admin page (Users table, or `PATCH /api/v1/admin/users/:id/tier`), and the user gets a notification.
 - Signed-out visitors can upload without logging in, so plan limits apply only to logged-in users.
 - Gemini's free tier allows very few requests per day; a paid key is needed for real use.

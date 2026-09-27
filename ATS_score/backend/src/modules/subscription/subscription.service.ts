@@ -1,7 +1,8 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
-export type Tier = 'free' | 'pro' | 'enterprise';
+export const TIERS = ['free', 'pro', 'enterprise'] as const;
+export type Tier = typeof TIERS[number];
 
 export interface TierLimits {
   analysesPerMonth:    number;
