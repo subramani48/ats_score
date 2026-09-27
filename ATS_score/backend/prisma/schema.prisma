@@ -130,7 +130,8 @@ model BatchJob {
 model ApiKey {
   id         String    @id @default(cuid())
   userId     String
-  key        String    @unique
+  keyHash    String    @unique // SHA-256 of the key; the key itself is shown once and never stored
+  keyLast8   String
   name       String
   usageCount Int       @default(0)
   lastUsed   DateTime?
@@ -139,7 +140,6 @@ model ApiKey {
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([key])
 }
 
 model Notification {

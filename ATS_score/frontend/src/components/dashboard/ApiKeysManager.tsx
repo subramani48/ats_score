@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Key, Plus, Trash2, Copy, Check, Eye, EyeOff, Code2 } from 'lucide-react';
-import { api } from '@/lib/api';
+import { api, BASE_URL } from '@/lib/api';
 import type { ApiKeyEntry } from '@/lib/api';
 
 export default function ApiKeysManager({ token: tokenProp }: { token?: string }) {
@@ -54,7 +54,7 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
           <h2 className="font-bold">API Keys</h2>
         </div>
         <p className="text-sm text-gray-400 mb-5">
-          Use these keys to integrate ATS analysis into your own applications.
+          Use these keys to call the API from your own scripts and apps. A key acts as you, so keep it secret. Keys cannot manage other keys or open the admin area.
         </p>
 
         {/* Create */}
@@ -160,9 +160,11 @@ export default function ApiKeysManager({ token: tokenProp }: { token?: string })
           <h3 className="font-bold text-sm">API Usage Example</h3>
         </div>
         <pre className="bg-gray-50 dark:bg-black/30 rounded-xl p-4 text-xs font-mono text-gray-700 dark:text-gray-300 overflow-x-auto">
-{`# Generate a cover letter
-curl -X POST https://api.atsanalyzer.com/api/v1/cover-letters/generate \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
+{`# Send the key in the X-API-Key header (or as "Authorization: Bearer ats_...")
+
+# Generate a cover letter
+curl -X POST ${BASE_URL}/api/v1/cover-letters/generate \\
+  -H "X-API-Key: YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{
     "resumeText": "Your resume text...",
@@ -171,10 +173,9 @@ curl -X POST https://api.atsanalyzer.com/api/v1/cover-letters/generate \\
     "tone": "professional"
   }'
 
-# Generate interview questions
-curl -X POST .../api/v1/interview/generate \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -d '{"resumeText":"...","jobDescription":"...","domain":"React"}'`}
+# List your past analyses
+curl ${BASE_URL}/api/v1/analyses/history \\
+  -H "X-API-Key: YOUR_API_KEY"`}
         </pre>
       </div>
     </div>

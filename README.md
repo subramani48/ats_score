@@ -24,7 +24,8 @@ A web application that scores a resume the way company hiring software (an ATS) 
 - Company battle card, and an application tracker with follow-up email drafts.
 
 **Accounts and administration**
-- Email and password sign-up (JWT), free / pro / enterprise plan limits, in-app notifications, API-key management, admin statistics.
+- Email and password sign-up (JWT), free / pro / enterprise plan limits, in-app notifications, admin statistics.
+- API keys for scripts and other apps: send `X-API-Key: ats_…` (or `Authorization: Bearer ats_…`) and the request acts as the key's owner. Keys are stored only as SHA-256 hashes, and they cannot manage other keys or open the admin area.
 
 ## Repository layout
 
@@ -113,7 +114,6 @@ docker compose up --build
 
 ## Known limitations
 
-- **API keys** can be created and revoked, but no route accepts one for authentication yet.
 - **Language switcher** stores the chosen language, but the pages are not translated (`frontend/src/i18n/messages` holds unused draft texts).
 - **Background jobs run in memory**: a server restart loses running analyses, and only one server instance is supported.
 - **Payments do not exist**: the plan-upgrade route always refuses.

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { JwtAuthGuard, JwtOnlyAuthGuard } from '../common/guards/jwt-auth.guard';
 import { OptionalAuthGuard } from '../common/guards/optional-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { ROLES_KEY } from '../common/decorators/roles.decorator';
@@ -45,7 +45,7 @@ const HOUR = 60 * 60 * 1000;
 describe('login guards', () => {
   describe('admin routes (Fix 1)', () => {
     it('need login AND the admin role, in that order', () => {
-      expect(guardsOf(AdminController)).toEqual([JwtAuthGuard, RolesGuard]);
+      expect(guardsOf(AdminController)).toEqual([JwtOnlyAuthGuard, RolesGuard]);
       expect(Reflect.getMetadata(ROLES_KEY, AdminController)).toEqual(['admin']);
     });
   });
@@ -85,7 +85,11 @@ describe('login guards', () => {
   });
 
   describe('versions (Fix 10), api keys, subscription and notifications', () => {
-    it.each([[VersionController], [ApiKeysController], [SubscriptionController], [UserNotificationsController]])(
+    it('API keys can only be managed with a login token, never with an API key', () => {
+      expect(guardsOf(ApiKeysController)).toEqual([JwtOnlyAuthGuard]);
+    });
+
+    it.each([[VersionController], [SubscriptionController], [UserNotificationsController]])(
       'need login (%p)', cls => expect(guardsOf(cls as Ctor)).toContain(JwtAuthGuard),
     );
   });
