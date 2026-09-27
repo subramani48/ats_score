@@ -10,7 +10,9 @@ A web application that scores a resume the way company hiring software (an ATS) 
 
 **Done and pushed to `version.1.0`:** everything under Features below, including the five items that used to be listed as limitations: API-key login, LinkedIn import on the website, analysis jobs kept in the database, admin-set plans (no online payments, by choice), and English / Tamil / Hindi translations. The project folder was renamed from `ATS score ` to `ATS_score` so the repository clones on Windows.
 
-**Checked:** backend type-check and 494 Jest tests pass; frontend type-check, lint and production build pass.
+**Checked:** backend type-check and 494 Jest tests pass; frontend type-check, lint and production build pass. A cleanup review found no unused files or debug leftovers; build output, `node_modules` and `.env` are git-ignored.
+
+**Hosting:** the code lives on GitHub (`version.1.0`) and can be pushed unchanged to GitLab. CI is defined only for GitHub (`.github/workflows/ci.yml`); GitLab ignores it, so GitLab runs no CI unless a `.gitlab-ci.yml` is added.
 
 **Not yet verified:**
 - The app has never been run end to end: no real database, Gemini key or SMTP account has been connected yet.
