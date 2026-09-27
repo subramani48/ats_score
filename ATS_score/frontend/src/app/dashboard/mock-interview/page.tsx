@@ -8,6 +8,7 @@ import { api } from '@/lib/api';
 import type { MockInterviewSession, MockInterviewSummary, MockTurn } from '@/lib/api';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { countFillers, countWords, speak, stopSpeaking, wordsPerMinute } from '@/lib/speech';
+import LinkedInImport from '@/components/LinkedInImport';
 
 const DOMAINS = ['Node.js','React','Python','DevOps','Cybersecurity','Marketing','Laravel','WordPress','Data Engineering','ML Engineering','Cloud Architecture','Product Management'];
 const PERSONAS = [
@@ -177,6 +178,7 @@ export default function MockInterviewPage() {
             <div>
               <label className={labelCls}>Resume text *</label>
               <textarea className={`${inputCls} resize-none`} rows={5} value={resumeText} onChange={e => setResumeText(e.target.value)} placeholder="Paste your resume..." />
+              <LinkedInImport token={token} onImport={setResumeText} />
             </div>
             <div>
               <label className={labelCls}>Job description</label>

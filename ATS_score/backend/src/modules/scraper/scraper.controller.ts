@@ -1,6 +1,6 @@
 import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
-import { IsString, IsUrl, IsOptional } from 'class-validator';
+import { IsString, IsUrl, IsOptional, IsNotEmpty, MaxLength } from 'class-validator';
 import { ScraperService } from './scraper.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
@@ -11,7 +11,7 @@ class ScrapeUrlDto {
 }
 
 class LinkedInImportDto {
-  @IsString()
+  @IsString() @IsNotEmpty() @MaxLength(30000)
   input!: string; // URL or raw pasted text
 
   @IsOptional()

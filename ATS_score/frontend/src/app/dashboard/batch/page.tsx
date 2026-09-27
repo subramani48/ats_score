@@ -6,6 +6,7 @@ import { Layers, Plus, Trash2, Sparkles, Loader2, XCircle, TrendingUp, Building2
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { BatchResult, KeywordGapResult, CompanyAtsResult } from '@/lib/api';
+import LinkedInImport from '@/components/LinkedInImport';
 
 const DOMAINS = ['Node.js','React','Python','DevOps','Cybersecurity','Marketing','Laravel','WordPress','Data Engineering','ML Engineering','Cloud Architecture','Product Management'];
 
@@ -179,6 +180,7 @@ export default function BatchPage() {
             <textarea value={resumeText} onChange={e => setResumeText(e.target.value)} rows={6}
               placeholder="Paste your resume..."
               className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all resize-none" />
+            <LinkedInImport token={token} onImport={setResumeText} />
           </div>
 
           <div>

@@ -6,6 +6,7 @@ import { Target, Loader2, Sparkles, Trash2, Copy, Check, AlertTriangle, DollarSi
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { BattleCard } from '@/lib/api';
+import LinkedInImport from '@/components/LinkedInImport';
 
 const inputCls = 'w-full px-4 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all';
 const labelCls = 'text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block';
@@ -107,7 +108,8 @@ export default function BattleCardPage() {
             <div><label className={labelCls}>Location</label><input className={inputCls} value={location} onChange={e => setLocation(e.target.value)} placeholder="Chennai, remote..." /></div>
           </div>
           <div><label className={labelCls}>Job description</label><textarea rows={4} className={`${inputCls} resize-none`} value={jobDesc} onChange={e => setJobDesc(e.target.value)} placeholder="Optional" /></div>
-          <div><label className={labelCls}>Resume text</label><textarea rows={4} className={`${inputCls} resize-none`} value={resumeText} onChange={e => setResumeText(e.target.value)} placeholder="Optional. Personalises your talking points" /></div>
+          <div><label className={labelCls}>Resume text</label><textarea rows={4} className={`${inputCls} resize-none`} value={resumeText} onChange={e => setResumeText(e.target.value)} placeholder="Optional. Personalises your talking points" />
+          <LinkedInImport token={token} onImport={setResumeText} /></div>
           {error && <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-sm text-red-600 dark:text-red-400">{error}</div>}
           <button onClick={generate} disabled={loading || !company.trim() || !role.trim()}
             className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-indigo-500 to-violet-600 text-white rounded-xl font-bold text-sm shadow-lg disabled:opacity-50">

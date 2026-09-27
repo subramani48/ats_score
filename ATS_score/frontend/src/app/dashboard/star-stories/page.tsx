@@ -6,6 +6,7 @@ import { BookOpen, Loader2, Sparkles, Search, Trash2, Pencil, Check, X, Lightbul
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { StarStory, StarMatchResult } from '@/lib/api';
+import LinkedInImport from '@/components/LinkedInImport';
 
 const inputCls = 'w-full px-4 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all';
 const labelCls = 'text-xs font-bold uppercase tracking-wider text-gray-400 mb-2 block';
@@ -160,6 +161,7 @@ export default function StarStoriesPage() {
           <div className="space-y-3">
             <label className={labelCls}>Build stories from your resume</label>
             <textarea rows={6} className={`${inputCls} resize-none`} value={resumeText} onChange={e => setResumeText(e.target.value)} placeholder="Paste your resume..." />
+            <LinkedInImport token={token} onImport={setResumeText} />
             <div className="flex gap-2">
               <select className={`${inputCls} !w-28`} value={count} onChange={e => setCount(Number(e.target.value))}>
                 {[4, 6, 8, 10].map(n => <option key={n} value={n}>{n} stories</option>)}

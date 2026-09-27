@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { ScraperService } from '../modules/scraper/scraper.service';
+import { ScraperService, LINKEDIN_TEXT_MAX } from '../modules/scraper/scraper.service';
 import { safeGet } from '../common/http/safe-fetch';
 
 jest.mock('../common/http/safe-fetch', () => ({ safeGet: jest.fn() }));
@@ -63,6 +63,19 @@ describe('ScraperService', () => {
       expect(mockSafeGet).not.toHaveBeenCalled();
       expect(result.data.name).toBe('Jane Doe');
       expect(result.data.headline).toBe('Senior Engineer');
+    });
+
+    it('tidies pasted text: drops blank lines and indentation', async () => {
+      const result = await service.importLinkedIn('\n\n   Jane Doe  \n\n\t Senior   Engineer\n\n  About\n  I build things\n');
+      expect(result.data.name).toBe('Jane Doe');
+      expect(result.data.headline).toBe('Senior Engineer');
+      expect(result.data.rawText).toBe('Jane Doe\nSenior Engineer\nAbout\nI build things');
+    });
+
+    it('keeps the text short enough for the resume boxes of the other tools', async () => {
+      const result = await service.importLinkedIn(`Jane Doe\n${'x'.repeat(20000)}`);
+      expect(result.data.rawText.length).toBe(LINKEDIN_TEXT_MAX);
+      expect(LINKEDIN_TEXT_MAX).toBeLessThanOrEqual(6000);
     });
 
     it('gives a generic message when the fetch fails, and logs the reason', async () => {

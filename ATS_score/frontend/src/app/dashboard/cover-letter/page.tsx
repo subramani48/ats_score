@@ -6,6 +6,7 @@ import { FileText, Sparkles, Clock, Copy, Download, Check, Link, Loader2, Buildi
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { CoverLetterHistory } from '@/lib/api';
+import LinkedInImport from '@/components/LinkedInImport';
 
 const TONES = [
   { value: 'professional', label: '👔 Professional', desc: 'Formal and polished' },
@@ -123,6 +124,7 @@ export default function CoverLetterPage() {
             <textarea value={resumeText} onChange={e => setResumeText(e.target.value)}
               rows={6} placeholder="Paste your resume content here..."
               className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all resize-none" />
+            <LinkedInImport token={token} onImport={setResumeText} />
           </div>
 
           {/* Job URL Fetch */}

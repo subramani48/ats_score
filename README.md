@@ -13,7 +13,7 @@ A web application that scores a resume the way company hiring software (an ATS) 
 - Optional job description: AI keyword-gap analysis, or a full AI rewrite of the resume for that job.
 - Chat with an AI coach about a saved analysis.
 - Analysis history, analytics and score trends, resume version snapshots and comparison, peer benchmark.
-- Import a job description from a URL on several pages. A LinkedIn profile import exists in the API; the website does not show it yet. (Server-side fetching is restricted to public web pages.)
+- Import a job description from a URL on several pages, and fill any resume box from your LinkedIn profile ("Import from LinkedIn" under the box; pasting the profile text works best, since LinkedIn usually blocks fetching a profile link). (Server-side fetching is restricted to public web pages.)
 
 **Job-search tools**
 - Cover letter generator, older interview-question generator, company-specific ATS check, batch analysis of several job descriptions.

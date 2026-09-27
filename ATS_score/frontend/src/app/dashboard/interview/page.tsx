@@ -6,6 +6,7 @@ import { MessageSquare, Sparkles, ChevronDown, ChevronUp, Loader2, Lightbulb, He
 import { useAnalysisStore } from '@/stores/analysisStore';
 import { api } from '@/lib/api';
 import type { InterviewResult, InterviewQuestion } from '@/lib/api';
+import LinkedInImport from '@/components/LinkedInImport';
 
 const DOMAINS = ['Node.js','React','Python','DevOps','Cybersecurity','Marketing','Laravel','WordPress','Data Engineering','ML Engineering','Cloud Architecture','Product Management'];
 const DIFFICULTIES = [
@@ -119,6 +120,7 @@ export default function InterviewPage() {
             <textarea value={resumeText} onChange={e => setResumeText(e.target.value)} rows={5}
               placeholder="Paste your resume..."
               className="w-full px-4 py-3 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all resize-none" />
+            <LinkedInImport token={token} onImport={setResumeText} />
           </div>
 
           {/* URL Fetch */}

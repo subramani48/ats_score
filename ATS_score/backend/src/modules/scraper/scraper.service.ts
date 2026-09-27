@@ -2,7 +2,12 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { safeGet } from '../../common/http/safe-fetch';
 
 // ── LinkedIn profile import helper ────────────────────────────────────────────
-function parseLinkedInText(text: string) {
+// The imported text goes into the resume boxes of the other tools, which accept at most 6,000 characters.
+export const LINKEDIN_TEXT_MAX = 6000;
+
+function parseLinkedInText(input: string) {
+  // Pasted profiles are full of blank lines and indentation; keep one line per entry.
+  const text = input.split('\n').map(l => l.replace(/[ \t]+/g, ' ').trim()).filter(Boolean).join('\n');
   const lower = text.toLowerCase();
 
   const sectionBounds = (keyword: string, maxLen = 1500) => {
@@ -15,16 +20,16 @@ function parseLinkedInText(text: string) {
     ? skillsChunk.split(/[,\n•·]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 60)
     : [];
 
-  const lines = text.split('\n').filter(l => l.trim());
+  const lines = text.split('\n');
 
   return {
-    name:       lines[0]?.trim() ?? '',
-    headline:   lines[1]?.trim() ?? '',
+    name:       lines[0] ?? '',
+    headline:   lines[1] ?? '',
     about:      sectionBounds('about'),
     experience: sectionBounds('experience'),
     education:  sectionBounds('education'),
     skills:     skills.slice(0, 30),
-    rawText:    text.slice(0, 8000),
+    rawText:    text.slice(0, LINKEDIN_TEXT_MAX),
   };
 }
 
