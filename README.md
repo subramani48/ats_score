@@ -6,6 +6,33 @@ A web application that scores a resume the way company hiring software (an ATS) 
 - **Frontend:** Next.js 16 (App Router), React 19, Tailwind CSS
 - **Language:** TypeScript throughout
 
+## Project status (updated 2026-09-27)
+
+**Done and pushed to `version.1.0`:** everything under Features below, including the five items that used to be listed as limitations: API-key login, LinkedIn import on the website, analysis jobs kept in the database, admin-set plans (no online payments, by choice), and English / Tamil / Hindi translations. The project folder was renamed from `ATS score ` to `ATS_score` so the repository clones on Windows.
+
+**Checked:** backend type-check and 494 Jest tests pass; frontend type-check, lint and production build pass.
+
+**Not yet verified:**
+- The app has never been run end to end: no real database, Gemini key or SMTP account has been connected yet.
+- The database job queue (`AnalysisJob` table) is tested only against an in-memory stand-in, not real PostgreSQL.
+- The language switcher has not been clicked through in a browser.
+- CI has not been confirmed green since the folder rename.
+
+**Next step:** fill in `ATS_score/backend/.env` (see Configuration), then `npm run db:generate`, `npm run db:push` (the schema changed: new `AnalysisJob` table, `ApiKey` now stores `keyHash`/`keyLast8`), start both apps and test each feature. Node.js must be 20.19+ or 22.12+ (Prisma 7 fails to install on older 20.x).
+
+## For AI agents: "follow the README"
+
+If you were pointed at this file, do this, in order:
+
+1. **Read first, change nothing.** Read this whole README, then tell the user in a few lines where the project stands (use Project status above) and what you suggest doing next.
+2. **Ask before acting.** Get the user's explicit OK before any of these, one at a time:
+   - running install, build, database or start commands (`npm install`, `db:push`, `db:migrate`, `db:seed`, `start:dev`, `docker compose up`);
+   - creating or changing `.env`: never overwrite an existing one, and never copy `.env.example` over it;
+   - any git commit, push, branch change, reset or force operation;
+   - editing code, or anything that sends data outside the machine (emails, Telegram forwarding, API calls with real keys).
+3. **Secrets stay out of chat.** Never ask the user to paste passwords or API keys into the conversation. Ask them to put the values into `ATS_score/backend/.env` themselves, then check only that the variables are set.
+4. **Report honestly.** Say what you ran and what happened, including failures. Update Project status above when something changes, and ask before pushing that update.
+
 ## Features
 
 **Resume analysis**
@@ -43,7 +70,7 @@ ATS_score/
 
 ## Getting started (local development)
 
-Requirements: Node.js 20, PostgreSQL, and a Google Gemini API key.
+Requirements: Node.js 20.19+ or 22.12+, PostgreSQL, and a Google Gemini API key.
 
 ```bash
 # 1. Backend
